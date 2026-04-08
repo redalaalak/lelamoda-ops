@@ -70,7 +70,7 @@ export async function ingestShopifyOrder(rawOrder: any) {
   if (orderError) throw orderError;
 
   if (mapped.items.length > 0) {
-    const itemsPayload = mapped.items.map((item) => ({ ...item, order_id: createdOrder.id }));
+    const itemsPayload = mapped.items.map((item: Record<string, unknown>) => ({   ...item,   order_id: createdOrder.id, }));
     const { error: itemsError } = await supabaseAdmin.from('order_items').insert(itemsPayload);
     if (itemsError) throw itemsError;
   }
