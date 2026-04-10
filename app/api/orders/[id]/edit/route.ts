@@ -136,9 +136,13 @@ export async function PATCH(
       } else {
         // ── Insert new item ─────────────────────────────────────────────
         //
-        // Build the payload without optional columns so that a pending
-        // migration (is_custom / image_url not yet in DB) never silently
-        // swallows the insert. Only spread them when they have real values.
+        // Build the core insert payload using only columns that are
+        // guaranteed to exist in the original schema (01_init.sql).
+        // image_url is intentionally omitted here: it is NOT in the
+        // original schema, so including it would cause "column does not
+        // exist" errors on any DB that hasn't run db/03_order_edit.sql.
+        // Persistence is the priority; thumbnails for manually-added
+        // items can be backfilled once the migration has been applied.
         const insertPayload: Record<string, unknown> = {
           order_id:           orderId,
           shopify_product_id: item.shopify_product_id ?? null,
@@ -150,10 +154,10 @@ export async function PATCH(
           unit_price:         item.unit_price,
           total_price:        lineTotal,
         }
-        // Only include these when they carry a real value so the insert
-        // succeeds even if the db/03_order_edit.sql migration hasn't run yet.
-        if (item.image_url)  insertPayload.image_url = item.image_url
-        if (item.is_custom)  insertPayload.is_custom  = true
+        // is_custom is also from db/03_order_edit.sql — only include it
+        // when it is explicitly true so custom-item saves show a clear
+        // error if the migration hasn't run, rather than breaking all saves.
+        if (item.is_custom)  insertPayload.is_custom = true
 
         const { error: insErr } = await supabaseAdmin
           .from('order_items')
