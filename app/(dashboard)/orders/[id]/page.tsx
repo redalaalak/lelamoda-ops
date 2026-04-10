@@ -4,6 +4,8 @@ import Link from 'next/link'
 import OrderActions from '@/components/orders/OrderActions'
 import OrderTimeline from '@/components/orders/OrderTimeline'
 import OrderPipeline from '@/components/orders/OrderPipeline'
+import OrderStatusBadge from '@/components/orders/OrderStatusBadge'
+import { OrderStatusProvider } from '@/components/orders/OrderStatusContext'
 import { STATUS_COLOR, STATUS_LABEL } from '@/lib/orders/constants'
 
 export const dynamic = 'force-dynamic'
@@ -44,6 +46,11 @@ export default async function OrderDetailsPage({ params }: { params: { id: strin
   const whatsappNumber = (order.customer_phone || '').replace(/[^0-9]/g, '')
 
   return (
+    <OrderStatusProvider
+      orderId={order.id}
+      initialStatus={order.business_status}
+      initialPaymentStatus={order.payment_status}
+    >
     <div className="p-6">
       {/* Header */}
       <div className="flex items-center justify-between mb-1">
@@ -56,9 +63,7 @@ export default async function OrderDetailsPage({ params }: { params: { id: strin
           <h1 className="text-lg font-bold text-gray-900">
             {order.shopify_order_name || `#${order.shopify_order_number}`}
           </h1>
-          <span className={`px-2.5 py-0.5 rounded-md text-xs font-semibold ${STATUS_COLOR[order.business_status] || 'bg-gray-100 text-gray-600'}`}>
-            {STATUS_LABEL[order.business_status] || order.business_status}
-          </span>
+          <OrderStatusBadge />
         </div>
         <div className="flex items-center gap-2">
           <button className="px-3 py-1.5 text-sm font-medium border border-gray-200 rounded-lg text-gray-600 hover:bg-gray-50 transition flex items-center gap-1.5">
@@ -67,7 +72,7 @@ export default async function OrderDetailsPage({ params }: { params: { id: strin
             </svg>
             Print
           </button>
-          <OrderActions orderId={order.id} currentStatus={order.business_status} />
+          <OrderActions orderId={order.id} />
         </div>
       </div>
 
@@ -193,7 +198,7 @@ export default async function OrderDetailsPage({ params }: { params: { id: strin
           </div>
 
           {/* Pipeline */}
-          <OrderPipeline currentStatus={order.business_status} orderId={order.id} />
+          <OrderPipeline orderId={order.id} />
 
           {/* Custom Attributes */}
           <div className="bg-white rounded-xl border border-gray-100 p-5">
@@ -499,5 +504,6 @@ export default async function OrderDetailsPage({ params }: { params: { id: strin
         </div>
       </div>
     </div>
+    </OrderStatusProvider>
   )
 }

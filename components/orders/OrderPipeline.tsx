@@ -1,26 +1,23 @@
 'use client'
 
-import { useState, useTransition } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState } from 'react'
 import { PIPELINE_STEPS, SIDE_STATUSES, STATUS_LABEL, BUSINESS_STATUS_LIST } from '@/lib/orders/constants'
+import { useOrderStatus } from './OrderStatusContext'
 
-export default function OrderPipeline({ currentStatus, orderId }: { currentStatus: string; orderId: string }) {
-  // Optimistic local state — updates immediately on click
-  const [status, setStatus] = useState(currentStatus)
-  const [isPending, startTransition] = useTransition()
+export default function OrderPipeline({ orderId }: { orderId: string }) {
+  const { status, setStatus } = useOrderStatus()
   const [error, setError] = useState<string | null>(null)
-  const router = useRouter()
+  const [saving, setSaving] = useState(false)
 
   const currentIdx = PIPELINE_STEPS.indexOf(status as any)
   const isInPipeline = currentIdx !== -1
 
   const changeStatus = async (newStatus: string) => {
-    if (newStatus === status || isPending) return
+    if (newStatus === status || saving) return
     setError(null)
-
-    // Optimistic update immediately
-    const prevStatus = status
-    setStatus(newStatus)
+    const prev = status
+    setStatus(newStatus) // optimistic — updates badge + pipeline instantly
+    setSaving(true)
 
     try {
       const res = await fetch(`/api/orders/${orderId}/status`, {
@@ -28,23 +25,16 @@ export default function OrderPipeline({ currentStatus, orderId }: { currentStatu
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: newStatus }),
       })
-
       const data = await res.json()
-
       if (!res.ok) {
-        // Revert on error
-        setStatus(prevStatus)
-        setError(data.error || 'Failed to update status')
-        return
+        setStatus(prev)
+        setError(data.error || 'Failed')
       }
-
-      // Sync server component in background
-      startTransition(() => {
-        router.refresh()
-      })
-    } catch (e) {
-      setStatus(prevStatus)
+    } catch {
+      setStatus(prev)
       setError('Network error')
+    } finally {
+      setSaving(false)
     }
   }
 
@@ -54,7 +44,7 @@ export default function OrderPipeline({ currentStatus, orderId }: { currentStatu
     <div className="bg-white rounded-xl border border-gray-100 p-5">
       <div className="flex items-center justify-between mb-4">
         <h2 className="font-semibold text-sm text-gray-900">Pipeline</h2>
-        {isPending && (
+        {saving && (
           <span className="text-xs text-gray-400 flex items-center gap-1">
             <svg className="animate-spin" width="10" height="10" fill="none" viewBox="0 0 24 24">
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
@@ -82,11 +72,12 @@ export default function OrderPipeline({ currentStatus, orderId }: { currentStatu
               <div className="flex flex-col items-center flex-1 min-w-0">
                 <button
                   onClick={() => changeStatus(stepValue)}
+                  disabled={saving}
                   className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold transition shrink-0 ${
                     isCurrent
                       ? 'bg-emerald-500 text-white shadow-sm ring-4 ring-emerald-100'
                       : isDone
-                      ? 'bg-emerald-400 text-white cursor-pointer hover:bg-emerald-500'
+                      ? 'bg-emerald-400 text-white hover:bg-emerald-500 cursor-pointer'
                       : 'bg-gray-100 text-gray-400 hover:bg-emerald-100 hover:text-emerald-700 cursor-pointer'
                   }`}
                   title={`Move to ${STATUS_LABEL[stepValue]}`}
@@ -119,7 +110,8 @@ export default function OrderPipeline({ currentStatus, orderId }: { currentStatu
           <button
             key={s.value}
             onClick={() => changeStatus(s.value)}
-            className={`px-2.5 py-1 rounded-lg text-xs font-medium transition ${s.color} ${
+            disabled={saving}
+            className={`px-2.5 py-1 rounded-lg text-xs font-medium transition disabled:opacity-60 ${s.color} ${
               s.value === status ? 'ring-2 ring-offset-1 ring-current' : 'opacity-70 hover:opacity-100'
             }`}
           >
