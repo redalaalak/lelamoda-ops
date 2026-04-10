@@ -32,9 +32,26 @@ export function OrderStatusProvider({
   const [paymentStatus, setPaymentStatus] = useState(initialPaymentStatus)
 
   useEffect(() => {
-    // Subscribe to realtime changes for this specific order
+    // ── Step 1: Immediately fetch latest status from DB ──────────────────────
+    // This bypasses any Next.js router cache that might have served stale HTML.
+    // The server component initialStatus might be stale if the page was cached.
+    async function syncLatest() {
+      const { data } = await supabase
+        .from('orders')
+        .select('business_status, payment_status')
+        .eq('id', orderId)
+        .single()
+      if (data) {
+        setStatus(data.business_status)
+        setPaymentStatus(data.payment_status)
+      }
+    }
+    syncLatest()
+
+    // ── Step 2: Subscribe to realtime for live updates ───────────────────────
+    // Fires whenever another user / center / webhook changes this order in DB.
     const channel = supabase
-      .channel(`order-${orderId}`)
+      .channel(`order-status-${orderId}`)
       .on(
         'postgres_changes',
         {
@@ -45,8 +62,9 @@ export function OrderStatusProvider({
         },
         (payload) => {
           const updated = payload.new as any
-          if (updated.business_status) setStatus(updated.business_status)
-          if (updated.payment_status) setPaymentStatus(updated.payment_status)
+          // Always update from DB payload — never trust local state only
+          if (updated.business_status !== undefined) setStatus(updated.business_status)
+          if (updated.payment_status !== undefined) setPaymentStatus(updated.payment_status)
         }
       )
       .subscribe()

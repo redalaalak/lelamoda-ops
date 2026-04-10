@@ -190,7 +190,7 @@ export default async function OrderDetailsPage({ params }: { params: { id: strin
             <div className="flex items-center justify-between mb-3">
               <h2 className="font-semibold text-sm text-gray-900">Payment & Transactions</h2>
               <span className={`px-2 py-0.5 rounded text-xs font-medium ${order.payment_status === 'paid' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}>
-                {order.payment_status === 'paid' ? 'Paid' : 'Pending'}
+                {order.payment_status === 'paid' ? 'Paid' : 'COD — Not Yet Paid'}
               </span>
             </div>
             <div className="text-sm text-gray-500 mb-1">{order.payment_method || 'Cash on Delivery'}</div>
@@ -383,26 +383,29 @@ export default async function OrderDetailsPage({ params }: { params: { id: strin
             </div>
           )}
 
-          {/* Payment Status */}
+          {/* Payment Status — clearly separated from business stage */}
           <div className="bg-white rounded-xl border border-gray-100 p-5">
-            <div className="flex items-center justify-between mb-3">
-              <div className="text-sm font-semibold text-gray-900">Payment Status</div>
-              <span className={`px-2 py-0.5 rounded text-xs font-medium ${order.payment_status === 'paid' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}>
-                {order.payment_status === 'paid' ? 'Paid' : 'Pending'}
-              </span>
-            </div>
-            <div className="space-y-3">
-              <div>
-                <div className="text-xs text-gray-400 mb-1">Financial Status</div>
-                <div className="text-sm text-gray-700 px-3 py-2 bg-gray-50 rounded-lg border border-gray-100">
-                  {order.payment_status === 'paid' ? 'Paid' : 'Pending'}
-                </div>
+            <div className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">Payment</div>
+            <div className="space-y-2.5">
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-gray-500">Payment status</span>
+                <span className={`px-2 py-0.5 rounded text-xs font-medium ${
+                  order.payment_status === 'paid'
+                    ? 'bg-emerald-100 text-emerald-700'
+                    : order.payment_status === 'refunded'
+                    ? 'bg-gray-100 text-gray-600'
+                    : 'bg-orange-100 text-orange-700'
+                }`}>
+                  {order.payment_status === 'paid' ? 'Paid' : order.payment_status === 'refunded' ? 'Refunded' : 'COD — Not Yet Paid'}
+                </span>
               </div>
-              <div>
-                <div className="text-xs text-gray-400 mb-1">Payment Method</div>
-                <div className="text-sm text-gray-700 px-3 py-2 bg-gray-50 rounded-lg border border-gray-100">
-                  {order.payment_method || 'Cash on Delivery'}
-                </div>
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-gray-500">Method</span>
+                <span className="text-xs text-gray-700 font-medium">{order.payment_method || 'Cash on Delivery'}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-gray-500">Amount due</span>
+                <span className="text-xs font-semibold text-gray-900">MAD {Number(order.amount_due || order.total_price || 0).toFixed(2)}</span>
               </div>
             </div>
           </div>

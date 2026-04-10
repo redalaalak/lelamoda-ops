@@ -22,9 +22,11 @@ export default async function OrdersPage() {
   }))
 
   const total = enriched.length
-  const paid = enriched.filter(o => o.payment_status === 'paid').length
-  const pending = enriched.filter(o => o.payment_status === 'pending').length
-  const refunded = enriched.filter(o => o.business_status === 'returned').length
+  // business_status counts (COD pipeline stages)
+  const awaitingConfirmation = enriched.filter(o => o.business_status === 'pending_confirmation').length
+  const confirmed = enriched.filter(o => o.business_status === 'confirmed').length
+  const shipped = enriched.filter(o => o.business_status === 'shipped').length
+  const returned = enriched.filter(o => o.business_status === 'returned').length
 
   return (
     <div className="p-6">
@@ -39,7 +41,7 @@ export default async function OrdersPage() {
         </div>
       </div>
 
-      {/* Stats */}
+      {/* Stats — all read from business_status (COD pipeline), not payment_status */}
       <div className="grid grid-cols-4 gap-4 mb-5">
         <div className="bg-white rounded-xl border border-gray-100 p-4 flex items-center gap-3">
           <div className="w-9 h-9 rounded-lg bg-blue-50 flex items-center justify-center">
@@ -53,25 +55,25 @@ export default async function OrdersPage() {
           </div>
         </div>
         <div className="bg-white rounded-xl border border-gray-100 p-4 flex items-center gap-3">
-          <div className="w-9 h-9 rounded-lg bg-emerald-50 flex items-center justify-center">
-            <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#10b981" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-          </div>
-          <div>
-            <div className="text-2xl font-bold text-gray-900">{paid}</div>
-            <div className="text-xs text-gray-400">Paid</div>
-          </div>
-        </div>
-        <div className="bg-white rounded-xl border border-gray-100 p-4 flex items-center gap-3">
           <div className="w-9 h-9 rounded-lg bg-amber-50 flex items-center justify-center">
             <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#f59e0b" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           </div>
           <div>
-            <div className="text-2xl font-bold text-gray-900">{pending}</div>
-            <div className="text-xs text-gray-400">Pending</div>
+            <div className="text-2xl font-bold text-amber-600">{awaitingConfirmation}</div>
+            <div className="text-xs text-gray-400">Awaiting Confirmation</div>
+          </div>
+        </div>
+        <div className="bg-white rounded-xl border border-gray-100 p-4 flex items-center gap-3">
+          <div className="w-9 h-9 rounded-lg bg-emerald-50 flex items-center justify-center">
+            <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#10b981" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <div>
+            <div className="text-2xl font-bold text-emerald-600">{confirmed}</div>
+            <div className="text-xs text-gray-400">Confirmed</div>
           </div>
         </div>
         <div className="bg-white rounded-xl border border-gray-100 p-4 flex items-center gap-3">
@@ -81,7 +83,7 @@ export default async function OrdersPage() {
             </svg>
           </div>
           <div>
-            <div className="text-2xl font-bold text-gray-900">{refunded}</div>
+            <div className="text-2xl font-bold text-gray-900">{returned}</div>
             <div className="text-xs text-gray-400">Returned</div>
           </div>
         </div>
