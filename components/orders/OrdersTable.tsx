@@ -68,6 +68,11 @@ export default function OrdersTable({ initialOrders }: { initialOrders: Order[] 
   const [newOrderIds, setNewOrderIds] = useState<Set<string>>(new Set())
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('')
+  const [paymentFilter, setPaymentFilter] = useState('')
+  const [cityFilter, setCityFilter] = useState('')
+
+  // Get unique cities for filter
+  const cities = Array.from(new Set(orders.map(o => o.shipping_city).filter(Boolean))).sort()
 
   useEffect(() => {
     const channel = supabase
@@ -96,42 +101,83 @@ export default function OrdersTable({ initialOrders }: { initialOrders: Order[] 
       o.customer_phone?.includes(q) ||
       o.shipping_city?.toLowerCase().includes(q)
     const matchStatus = !statusFilter || o.business_status === statusFilter
-    return matchSearch && matchStatus
+    const matchPayment = !paymentFilter || o.payment_status === paymentFilter
+    const matchCity = !cityFilter || o.shipping_city === cityFilter
+    return matchSearch && matchStatus && matchPayment && matchCity
   })
 
   return (
     <div className="bg-white rounded-xl border border-gray-100">
       {/* Filters */}
-      <div className="px-4 py-3 border-b border-gray-100 flex items-center gap-3">
-        <div className="relative flex-1 max-w-xs">
-          <svg className="absolute left-3 top-2.5 text-gray-400" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-          </svg>
-          <input
-            type="text"
-            placeholder="Search orders..."
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-            className="w-full pl-8 pr-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-emerald-400 bg-gray-50"
-          />
+      <div className="px-4 py-3 border-b border-gray-100">
+        <div className="flex items-center gap-2 flex-wrap">
+          {/* Search */}
+          <div className="relative flex-1 min-w-[180px] max-w-xs">
+            <svg className="absolute left-3 top-2.5 text-gray-400" width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+            <input
+              type="text"
+              placeholder="Search orders..."
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              className="w-full pl-8 pr-3 py-1.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-emerald-400 bg-gray-50"
+            />
+          </div>
+
+          {/* Payment Type */}
+          <select
+            value={paymentFilter}
+            onChange={e => setPaymentFilter(e.target.value)}
+            className="text-sm border border-gray-200 rounded-lg px-3 py-1.5 bg-gray-50 focus:outline-none focus:ring-1 focus:ring-emerald-400 text-gray-500"
+          >
+            <option value="">All Payment Types</option>
+            <option value="pending">Pending</option>
+            <option value="paid">Paid</option>
+          </select>
+
+          {/* Global Stage */}
+          <select
+            value={statusFilter}
+            onChange={e => setStatusFilter(e.target.value)}
+            className="text-sm border border-gray-200 rounded-lg px-3 py-1.5 bg-gray-50 focus:outline-none focus:ring-1 focus:ring-emerald-400 text-gray-500"
+          >
+            <option value="">Global Stage</option>
+            <option value="pending_confirmation">Pending</option>
+            <option value="confirmed">Confirmed</option>
+            <option value="to_edit">To Edit</option>
+            <option value="canceled_confirmation">Canceled</option>
+            <option value="processing">Processing</option>
+            <option value="shipped">Shipped</option>
+            <option value="delivered">Delivered</option>
+            <option value="returned">Returned</option>
+            <option value="out_of_stock">Out of Stock</option>
+          </select>
+
+          {/* City / Pipeline */}
+          <select
+            value={cityFilter}
+            onChange={e => setCityFilter(e.target.value)}
+            className="text-sm border border-gray-200 rounded-lg px-3 py-1.5 bg-gray-50 focus:outline-none focus:ring-1 focus:ring-emerald-400 text-gray-500"
+          >
+            <option value="">All Cities</option>
+            {cities.map(city => (
+              <option key={city} value={city}>{city}</option>
+            ))}
+          </select>
+
+          {/* Reset */}
+          {(search || statusFilter || paymentFilter || cityFilter) && (
+            <button
+              onClick={() => { setSearch(''); setStatusFilter(''); setPaymentFilter(''); setCityFilter('') }}
+              className="text-xs text-gray-400 hover:text-gray-600 px-2 py-1.5 hover:bg-gray-100 rounded-lg transition"
+            >
+              Reset
+            </button>
+          )}
+
+          <span className="text-xs text-gray-400 ml-auto">{filtered.length} orders</span>
         </div>
-        <select
-          value={statusFilter}
-          onChange={e => setStatusFilter(e.target.value)}
-          className="text-sm border border-gray-200 rounded-lg px-3 py-2 bg-gray-50 focus:outline-none focus:ring-1 focus:ring-emerald-400 text-gray-600"
-        >
-          <option value="">All Stages</option>
-          <option value="pending_confirmation">Pending</option>
-          <option value="confirmed">Confirmed</option>
-          <option value="to_edit">To Edit</option>
-          <option value="canceled_confirmation">Canceled</option>
-          <option value="processing">Processing</option>
-          <option value="shipped">Shipped</option>
-          <option value="delivered">Delivered</option>
-          <option value="returned">Returned</option>
-          <option value="out_of_stock">Out of Stock</option>
-        </select>
-        <span className="text-xs text-gray-400 ml-auto">{filtered.length} orders</span>
       </div>
 
       {/* Table */}
