@@ -1,3 +1,6 @@
+import Link from 'next/link'
+import AutoRefresh from '@/components/AutoRefresh'
+
 export const dynamic = 'force-dynamic'
 
 async function getShopifyProducts() {
@@ -28,9 +31,13 @@ export default async function ProductsPage() {
 
   return (
     <div className="p-6">
+      <AutoRefresh intervalMs={30000} />
       <div className="flex items-center justify-between mb-5">
         <h1 className="text-lg font-semibold text-gray-900">Products</h1>
-        <span className="text-xs text-gray-400">{products.length} products from Shopify</span>
+        <div className="flex items-center gap-2">
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span className="text-xs text-gray-400">{products.length} products · auto-refresh 30s</span>
+        </div>
       </div>
 
       {/* Stats */}
@@ -102,7 +109,7 @@ export default async function ProductsPage() {
               const lowStock = totalVariantStock > 0 && totalVariantStock <= 10
 
               return (
-                <tr key={product.id} className="border-b border-gray-50 hover:bg-gray-50 transition-colors">
+                <tr key={product.id} onClick={() => window.location.href = `/products/${product.id}`} className="border-b border-gray-50 hover:bg-gray-50 transition-colors cursor-pointer">
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-3">
                       {image ? (
