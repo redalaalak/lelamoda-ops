@@ -1,3 +1,20 @@
+function extractUTM(landingSite: string | null) {
+  if (!landingSite) return {}
+  try {
+    const url = new URL('https://x.com' + landingSite)
+    return {
+      utm_source: url.searchParams.get('utm_source') || null,
+      utm_medium: url.searchParams.get('utm_medium') || null,
+      utm_campaign: url.searchParams.get('utm_campaign') || null,
+      utm_content: url.searchParams.get('utm_content') || null,
+      utm_term: url.searchParams.get('utm_term') || null,
+      landing_site: landingSite,
+    }
+  } catch {
+    return { landing_site: landingSite }
+  }
+}
+
 export function mapShopifyOrder(order: any) {
   const shipping = order.shipping_address || {}
   const customer = order.customer || {}
@@ -11,6 +28,8 @@ export function mapShopifyOrder(order: any) {
   const firstName = customer.first_name || shipping.first_name || ''
   const lastName = customer.last_name || shipping.last_name || ''
   const fullName = `${firstName} ${lastName}`.trim() || order.email || 'Unknown'
+
+  const utm = extractUTM(order.landing_site || null)
 
   return {
     customer: {
@@ -59,6 +78,8 @@ export function mapShopifyOrder(order: any) {
       shipping_province: shipping.province || null,
       shipping_zip: shipping.zip || null,
       shipping_country_code: shipping.country_code || 'MA',
+
+      ...utm,
     },
     items: (order.line_items || []).map((item: any) => ({
       shopify_line_item_id: item.id ? String(item.id) : null,

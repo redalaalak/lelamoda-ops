@@ -1,5 +1,6 @@
 import { supabaseAdmin } from '@/lib/supabase/admin'
 import { mapShopifyOrder } from '@/lib/shopify/mapper'
+import { fetchProductImage } from '@/lib/shopify/client'
 
 export async function ingestShopifyOrder(rawOrder: any) {
   const mapped = mapShopifyOrder(rawOrder)
@@ -73,10 +74,17 @@ export async function ingestShopifyOrder(rawOrder: any) {
   if (orderErr) throw orderErr
   console.log('[ingest] Order created:', createdOrder.id)
 
-  // Create order items
+  // Fetch product images and create order items
   if (mapped.items.length > 0) {
-    const items = mapped.items.map((item: any) => ({ ...item, order_id: createdOrder.id }))
-    const { error: itemsErr } = await supabaseAdmin.from('order_items').insert(items)
+    const itemsWithImages = await Promise.all(
+      mapped.items.map(async (item: any) => {
+        const image_url = item.shopify_product_id
+          ? await fetchProductImage(item.shopify_product_id)
+          : null
+        return { ...item, order_id: createdOrder.id, image_url }
+      })
+    )
+    const { error: itemsErr } = await supabaseAdmin.from('order_items').insert(itemsWithImages)
     if (itemsErr) throw itemsErr
     console.log('[ingest] Items created:', mapped.items.length)
   }

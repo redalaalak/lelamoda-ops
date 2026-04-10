@@ -62,15 +62,20 @@ export default async function OrderDetailsPage({ params }: { params: { id: strin
             <h2 className="font-semibold text-slate-900 mb-4">Products</h2>
             <div className="space-y-3">
               {items && items.length > 0 ? items.map((item) => (
-                <div key={item.id} className="flex items-center justify-between py-2 border-b border-slate-100 last:border-0">
-                  <div>
-                    <div className="font-medium text-sm text-slate-900">{item.title}</div>
+                <div key={item.id} className="flex items-center gap-3 py-2 border-b border-slate-100 last:border-0">
+                  {item.image_url ? (
+                    <img src={item.image_url} alt={item.title} className="w-14 h-14 object-cover rounded-xl border border-slate-200 shrink-0" />
+                  ) : (
+                    <div className="w-14 h-14 rounded-xl bg-slate-100 flex items-center justify-center shrink-0 text-slate-300 text-xl">📦</div>
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <div className="font-medium text-sm text-slate-900 truncate">{item.title}</div>
                     {item.variant_title && (
                       <div className="text-xs text-slate-400 mt-0.5">{item.variant_title}</div>
                     )}
                     {item.sku && <div className="text-xs text-slate-400">SKU: {item.sku}</div>}
                   </div>
-                  <div className="text-right">
+                  <div className="text-right shrink-0">
                     <div className="text-sm font-medium text-slate-900">MAD {Number(item.unit_price).toFixed(0)}</div>
                     <div className="text-xs text-slate-400">x{item.quantity}</div>
                   </div>
@@ -191,6 +196,33 @@ export default async function OrderDetailsPage({ params }: { params: { id: strin
               </div>
             </div>
           </div>
+
+          {/* UTM */}
+          {(order.utm_source || order.utm_medium || order.utm_campaign) && (
+            <div className="bg-white rounded-2xl border border-slate-200 p-5">
+              <h2 className="font-semibold text-slate-900 mb-4">Source / UTM</h2>
+              <div className="space-y-2 text-sm">
+                {order.utm_source && (
+                  <div className="flex justify-between">
+                    <span className="text-slate-500">Source</span>
+                    <span className="text-slate-700">{order.utm_source}</span>
+                  </div>
+                )}
+                {order.utm_medium && (
+                  <div className="flex justify-between">
+                    <span className="text-slate-500">Medium</span>
+                    <span className="text-slate-700">{order.utm_medium}</span>
+                  </div>
+                )}
+                {order.utm_campaign && (
+                  <div className="flex justify-between">
+                    <span className="text-slate-500">Campaign</span>
+                    <span className="text-slate-700 truncate max-w-[150px]">{order.utm_campaign}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
 
           {/* Actions */}
           <div className="bg-white rounded-2xl border border-slate-200 p-5">
