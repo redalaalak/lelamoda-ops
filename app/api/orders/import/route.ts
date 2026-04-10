@@ -1,5 +1,6 @@
 import { supabaseAdmin } from '@/lib/supabase/admin'
 import { NextResponse } from 'next/server'
+import { recordInitialOrderStatus } from '@/lib/orders/actions'
 
 // Maps common EGROW column names to our fields
 const FIELD_MAP: Record<string, string> = {
@@ -230,17 +231,17 @@ export async function POST(req: Request) {
 
         if (orderErr) { errors.push(`${orderName}: ${orderErr.message}`); continue }
 
-        // Record initial status history
+        // Record initial status history + timeline event
         if (createdOrder) {
-          await supabaseAdmin.from('order_status_history').insert({
-            order_id: createdOrder.id,
-            new_business_status: createdOrder.business_status,
-            new_payment_status: createdOrder.payment_status,
-            new_stock_status: createdOrder.stock_status,
-            new_shipping_status: createdOrder.shipping_status,
-            changed_by_source: 'csv_import',
-            reason: 'Order imported via CSV',
-          })
+          await recordInitialOrderStatus(
+            createdOrder.id,
+            createdOrder.business_status,
+            createdOrder.payment_status,
+            createdOrder.stock_status,
+            createdOrder.shipping_status,
+            'csv_import',
+            'Order imported via CSV'
+          )
         }
         imported++
       } catch (e: any) {

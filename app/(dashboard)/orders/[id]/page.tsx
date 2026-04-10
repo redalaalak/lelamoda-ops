@@ -21,10 +21,14 @@ export default async function OrderDetailsPage({ params }: { params: { id: strin
 
   const [
     { data: items },
-    { data: history },
+    { data: events },
   ] = await Promise.all([
     supabaseAdmin.from('order_items').select('*').eq('order_id', params.id),
-    supabaseAdmin.from('order_status_history').select('*').eq('order_id', params.id).order('created_at', { ascending: true }),
+    supabaseAdmin
+      .from('order_events')
+      .select('id, order_id, event_type, title, description, actor_name, actor_user_id, source, metadata, created_at')
+      .eq('order_id', params.id)
+      .order('created_at', { ascending: true }),
   ])
 
   // Customer stats
@@ -215,7 +219,7 @@ export default async function OrderDetailsPage({ params }: { params: { id: strin
           </div>
 
           {/* Timeline */}
-          <OrderTimeline orderId={order.id} history={history || []} createdAt={order.created_at} />
+          <OrderTimeline orderId={order.id} events={events || []} createdAt={order.created_at} />
 
         </div>
 
