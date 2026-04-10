@@ -7,18 +7,26 @@ export const revalidate = 0
 export default async function OrdersPage() {
   const { data: orders } = await supabaseAdmin
     .from('orders')
-    .select('*')
+    .select('*, order_items(title, image_url, variant_title)')
     .order('created_at', { ascending: false })
     .limit(200)
 
-  const total = orders?.length || 0
-  const paid = orders?.filter(o => o.payment_status === 'paid').length || 0
-  const pending = orders?.filter(o => o.payment_status === 'pending').length || 0
-  const refunded = orders?.filter(o => o.business_status === 'returned').length || 0
+  // Flatten first item info into each order
+  const enriched = (orders || []).map((o: any) => ({
+    ...o,
+    first_item_image: o.order_items?.[0]?.image_url || null,
+    first_item_title: o.order_items?.[0]?.title || null,
+    first_item_variant: o.order_items?.[0]?.variant_title || null,
+    items_count: o.order_items?.length || 0,
+  }))
+
+  const total = enriched.length
+  const paid = enriched.filter(o => o.payment_status === 'paid').length
+  const pending = enriched.filter(o => o.payment_status === 'pending').length
+  const refunded = enriched.filter(o => o.business_status === 'returned').length
 
   return (
     <div className="p-6">
-      {/* Header */}
       <div className="flex items-center justify-between mb-5">
         <h1 className="text-lg font-semibold text-gray-900">Orders</h1>
         <div className="flex items-center gap-2">
@@ -75,8 +83,7 @@ export default async function OrdersPage() {
         </div>
       </div>
 
-      {/* Table */}
-      <OrdersTable initialOrders={orders || []} />
+      <OrdersTable initialOrders={enriched} />
     </div>
   )
 }

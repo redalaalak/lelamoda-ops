@@ -47,6 +47,10 @@ type Order = {
   payment_status: string
   payment_method: string
   created_at: string
+  first_item_image?: string | null
+  first_item_title?: string | null
+  first_item_variant?: string | null
+  items_count?: number
 }
 
 function timeAgo(date: string) {
@@ -169,10 +173,21 @@ export default function OrdersTable({ initialOrders }: { initialOrders: Order[] 
                 }`}
               >
                 <td className="px-4 py-3">
-                  <div className="font-semibold text-sm text-gray-900">
-                    {order.shopify_order_name || `#${order.shopify_order_number}`}
+                  <div className="flex items-center gap-3">
+                    {order.first_item_image ? (
+                      <img src={order.first_item_image} alt="" className="w-10 h-10 rounded-lg object-cover border border-gray-100 shrink-0" />
+                    ) : (
+                      <div className="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center shrink-0 text-gray-300 text-base">📦</div>
+                    )}
+                    <div>
+                      <div className="font-semibold text-sm text-gray-900">
+                        {order.shopify_order_name || `#${order.shopify_order_number}`}
+                      </div>
+                      {order.first_item_title && (
+                        <div className="text-xs text-gray-400 truncate max-w-[120px]">{order.first_item_title}</div>
+                      )}
+                    </div>
                   </div>
-                  <div className="text-xs text-gray-400">{order.payment_method || 'COD'}</div>
                 </td>
                 <td className="px-4 py-3 text-xs text-gray-500 whitespace-nowrap">
                   {timeAgo(order.created_at)}
