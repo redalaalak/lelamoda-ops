@@ -135,38 +135,51 @@ export async function PATCH(
         }
       } else {
         // ── Insert new item ─────────────────────────────────────────────
+        //
+        // Build the payload without optional columns so that a pending
+        // migration (is_custom / image_url not yet in DB) never silently
+        // swallows the insert. Only spread them when they have real values.
+        const insertPayload: Record<string, unknown> = {
+          order_id:           orderId,
+          shopify_product_id: item.shopify_product_id ?? null,
+          shopify_variant_id: item.shopify_variant_id ?? null,
+          sku:                item.sku ?? null,
+          title:              item.title,
+          variant_title:      item.variant_title ?? null,
+          quantity:           item.quantity,
+          unit_price:         item.unit_price,
+          total_price:        lineTotal,
+        }
+        // Only include these when they carry a real value so the insert
+        // succeeds even if the db/03_order_edit.sql migration hasn't run yet.
+        if (item.image_url)  insertPayload.image_url = item.image_url
+        if (item.is_custom)  insertPayload.is_custom  = true
+
         const { error: insErr } = await supabaseAdmin
           .from('order_items')
-          .insert({
-            order_id:           orderId,
-            shopify_product_id: item.shopify_product_id ?? null,
-            shopify_variant_id: item.shopify_variant_id ?? null,
-            sku:                item.sku ?? null,
-            title:              item.title,
-            variant_title:      item.variant_title ?? null,
-            quantity:           item.quantity,
-            unit_price:         item.unit_price,
-            total_price:        lineTotal,
-            image_url:          item.image_url ?? null,
-            is_custom:          item.is_custom ?? false,
-          })
+          .insert(insertPayload)
 
-        if (!insErr) {
-          pendingLogs.push(logOrderEvent({
-            orderId,
-            eventType: 'item_added',
-            title: item.is_custom ? 'Custom item added' : 'Product added',
-            description: item.title,
-            actorName,
-            source: 'user_action',
-            metadata: {
-              title:      item.title,
-              quantity:   item.quantity,
-              unit_price: item.unit_price,
-              is_custom:  item.is_custom ?? false,
-            },
-          }))
+        // ← Previously this error was silently ignored, causing ok:true to
+        //   be returned even when the item was never saved.  Throw now so the
+        //   UI receives a real error message instead.
+        if (insErr) {
+          throw new Error(`Failed to add "${item.title}": ${insErr.message}`)
         }
+
+        pendingLogs.push(logOrderEvent({
+          orderId,
+          eventType: 'item_added',
+          title: item.is_custom ? 'Custom item added' : 'Product added',
+          description: item.title,
+          actorName,
+          source: 'user_action',
+          metadata: {
+            title:      item.title,
+            quantity:   item.quantity,
+            unit_price: item.unit_price,
+            is_custom:  item.is_custom ?? false,
+          },
+        }))
       }
     }
 
