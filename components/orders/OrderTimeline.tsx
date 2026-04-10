@@ -73,6 +73,15 @@ function dotColor(eventType: string): string {
       return 'bg-sky-400'
     case 'customer_info_updated':
       return 'bg-orange-400'
+    case 'item_added':
+      return 'bg-emerald-400'
+    case 'item_removed':
+      return 'bg-red-400'
+    case 'item_quantity_changed':
+    case 'item_price_changed':
+      return 'bg-amber-400'
+    case 'order_edited':
+      return 'bg-violet-300'
     default:
       return 'bg-gray-300'
   }

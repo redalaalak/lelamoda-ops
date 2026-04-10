@@ -5,6 +5,7 @@ import OrderActions from '@/components/orders/OrderActions'
 import OrderTimeline from '@/components/orders/OrderTimeline'
 import OrderPipeline from '@/components/orders/OrderPipeline'
 import OrderStatusBadge from '@/components/orders/OrderStatusBadge'
+import EditOrderPanel from '@/components/orders/EditOrderPanel'
 import { OrderStatusProvider } from '@/components/orders/OrderStatusContext'
 import { STATUS_COLOR, STATUS_LABEL } from '@/lib/orders/constants'
 
@@ -92,74 +93,25 @@ export default async function OrderDetailsPage({ params }: { params: { id: strin
         {/* ── LEFT COLUMN ─────────────────────────────── */}
         <div className="col-span-2 space-y-4">
 
-          {/* Products + Pricing */}
-          <div className="bg-white rounded-xl border border-gray-100 p-5">
-            {items && items.length > 0 ? items.map((item: any, idx: number) => (
-              <div key={item.id} className={`flex items-center gap-4 ${idx > 0 ? 'pt-4 mt-4 border-t border-gray-50' : ''}`}>
-                {item.shopify_product_id ? (
-                  <Link href={`/products/${item.shopify_product_id}`} className="shrink-0">
-                    {item.image_url ? (
-                      <img src={item.image_url} alt={item.title} className="w-16 h-16 object-cover rounded-lg border border-gray-100 hover:opacity-80 transition" />
-                    ) : (
-                      <div className="w-16 h-16 rounded-lg bg-gray-100 flex items-center justify-center text-2xl hover:bg-gray-200 transition">📦</div>
-                    )}
-                  </Link>
-                ) : item.image_url ? (
-                  <img src={item.image_url} alt={item.title} className="w-16 h-16 object-cover rounded-lg border border-gray-100 shrink-0" />
-                ) : (
-                  <div className="w-16 h-16 rounded-lg bg-gray-100 flex items-center justify-center shrink-0 text-2xl">📦</div>
-                )}
-                <div className="flex-1 min-w-0">
-                  {item.shopify_product_id ? (
-                    <Link href={`/products/${item.shopify_product_id}`} className="font-semibold text-sm text-emerald-600 hover:underline">
-                      {item.title}
-                    </Link>
-                  ) : (
-                    <div className="font-semibold text-sm text-gray-900">{item.title}</div>
-                  )}
-                  {item.variant_title && (
-                    <div className="text-xs text-gray-400 mt-0.5">{item.variant_title}</div>
-                  )}
-                  {item.sku && <div className="text-xs text-gray-400">SKU: {item.sku}</div>}
-                  <div className="text-xs text-gray-400 mt-0.5">Qty: {item.quantity}</div>
-                </div>
-                <div className="text-right shrink-0">
-                  <div className="font-semibold text-sm text-gray-900">
-                    MAD{Number((item.unit_price || 0) * (item.quantity || 1)).toFixed(2)}
-                  </div>
-                  <div className="text-xs text-gray-400">MAD{Number(item.unit_price || 0).toFixed(2)} / unit</div>
-                </div>
-              </div>
-            )) : (
-              <div className="text-sm text-gray-400">No items</div>
-            )}
-
-            {/* Price breakdown */}
-            <div className="mt-5 pt-4 border-t border-gray-100 space-y-2">
-              <div className="flex justify-between text-sm text-gray-600">
-                <span>Subtotal</span>
-                <span>MAD{Number(order.subtotal_price || 0).toFixed(2)}</span>
-              </div>
-              {Number(order.discount_total) > 0 && (
-                <div className="flex justify-between text-sm text-emerald-600">
-                  <span>Discount</span>
-                  <span>-MAD{Number(order.discount_total).toFixed(2)}</span>
-                </div>
-              )}
-              <div className="flex justify-between text-sm text-gray-600">
-                <span>Shipping</span>
-                <span>+MAD{Number(order.shipping_price || 0).toFixed(2)}</span>
-              </div>
-              <div className="flex justify-between text-sm font-medium text-gray-700 pt-2 border-t border-gray-50">
-                <span>Total VAT</span>
-                <span>MAD{Number(order.total_price || 0).toFixed(2)}</span>
-              </div>
-              <div className="flex justify-between text-base font-bold text-gray-900">
-                <span>Amount Due</span>
-                <span>MAD{Number(order.amount_due || order.total_price || 0).toFixed(2)}</span>
-              </div>
-            </div>
-          </div>
+          {/* Products + Pricing — editable */}
+          <EditOrderPanel
+            key={order.updated_at}
+            orderId={order.id}
+            initialItems={(items || []).map((item: any) => ({
+              id:                 item.id,
+              shopify_product_id: item.shopify_product_id ?? null,
+              shopify_variant_id: item.shopify_variant_id ?? null,
+              sku:                item.sku ?? null,
+              title:              item.title ?? '',
+              variant_title:      item.variant_title ?? null,
+              quantity:           item.quantity ?? 1,
+              unit_price:         Number(item.unit_price ?? 0),
+              image_url:          item.image_url ?? null,
+              is_custom:          item.is_custom ?? false,
+            }))}
+            initialShipping={Number(order.shipping_price ?? 0)}
+            initialDiscount={Number(order.discount_total ?? 0)}
+          />
 
           {/* Upsell suggestions */}
           <div className="bg-white rounded-xl border border-gray-100 p-5">

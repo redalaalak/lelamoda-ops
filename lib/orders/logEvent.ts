@@ -6,6 +6,7 @@ import { supabaseAdmin } from '@/lib/supabase/admin'
 export type OrderEventType =
   | 'order_created'
   | 'order_imported'
+  | 'order_edited'
   | 'business_status_changed'
   | 'payment_status_changed'
   | 'stock_status_changed'
@@ -14,6 +15,10 @@ export type OrderEventType =
   | 'parcel_created'
   | 'note_added'
   | 'customer_info_updated'
+  | 'item_added'
+  | 'item_removed'
+  | 'item_quantity_changed'
+  | 'item_price_changed'
 
 // ---------------------------------------------------------------------------
 // Source identifiers
