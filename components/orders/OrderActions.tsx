@@ -40,7 +40,7 @@ export default function OrderActions({ orderId, currentStatus }: { orderId: stri
     <div className="relative" ref={ref}>
       <button
         onClick={() => setOpen(!open)}
-        disabled={loading}
+        disabled={isPending}
         className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium border border-gray-200 rounded-lg text-gray-600 hover:bg-gray-50 transition disabled:opacity-60"
       >
         {isPending ? (
