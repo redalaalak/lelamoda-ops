@@ -2,37 +2,12 @@
 
 import { useEffect, useState } from 'react'
 import { createClient } from '@supabase/supabase-js'
+import { STATUS_COLOR, STATUS_LABEL } from '@/lib/orders/constants'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 )
-
-const bizColors: Record<string, string> = {
-  pending_confirmation: 'bg-amber-100 text-amber-700',
-  confirmed: 'bg-emerald-100 text-emerald-700',
-  to_edit: 'bg-orange-100 text-orange-700',
-  canceled_confirmation: 'bg-red-100 text-red-700',
-  processing: 'bg-blue-100 text-blue-700',
-  shipped: 'bg-violet-100 text-violet-700',
-  delivered: 'bg-emerald-100 text-emerald-700',
-  returned: 'bg-gray-100 text-gray-600',
-  blocked_customer: 'bg-red-200 text-red-800',
-  out_of_stock: 'bg-yellow-100 text-yellow-700',
-}
-
-const bizLabels: Record<string, string> = {
-  pending_confirmation: 'Pending',
-  confirmed: 'Confirmed',
-  to_edit: 'To Edit',
-  canceled_confirmation: 'Canceled',
-  processing: 'Processing',
-  shipped: 'Shipped',
-  delivered: 'Delivered',
-  returned: 'Returned',
-  blocked_customer: 'Blocked',
-  out_of_stock: 'Out of Stock',
-}
 
 type Order = {
   id: string
@@ -258,8 +233,8 @@ export default function OrdersTable({ initialOrders }: { initialOrders: Order[] 
                   </span>
                 </td>
                 <td className="px-4 py-3">
-                  <span className={`inline-flex px-2 py-0.5 rounded-md text-xs font-medium ${bizColors[order.business_status] || 'bg-gray-100 text-gray-600'}`}>
-                    {bizLabels[order.business_status] || order.business_status}
+                  <span className={`inline-flex px-2 py-0.5 rounded-md text-xs font-medium ${STATUS_COLOR[order.business_status] || 'bg-gray-100 text-gray-600'}`}>
+                    {STATUS_LABEL[order.business_status] || order.business_status}
                   </span>
                 </td>
                 <td className="px-4 py-3 text-right">

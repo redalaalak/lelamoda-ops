@@ -1,6 +1,7 @@
 import { supabaseAdmin } from '@/lib/supabase/admin'
 import { mapShopifyOrder } from '@/lib/shopify/mapper'
 import { fetchProductImage } from '@/lib/shopify/client'
+import { recordInitialOrderStatus } from './actions'
 
 export async function ingestShopifyOrder(rawOrder: any) {
   const mapped = mapShopifyOrder(rawOrder)
@@ -89,16 +90,16 @@ export async function ingestShopifyOrder(rawOrder: any) {
     console.log('[ingest] Items created:', mapped.items.length)
   }
 
-  // Create status history
-  await supabaseAdmin.from('order_status_history').insert({
-    order_id: createdOrder.id,
-    new_business_status: createdOrder.business_status,
-    new_payment_status: createdOrder.payment_status,
-    new_stock_status: createdOrder.stock_status,
-    new_shipping_status: createdOrder.shipping_status,
-    changed_by_source: 'shopify_webhook',
-    reason: 'Order imported from Shopify',
-  })
+  // Create initial status history via central action
+  await recordInitialOrderStatus(
+    createdOrder.id,
+    createdOrder.business_status,
+    createdOrder.payment_status,
+    createdOrder.stock_status,
+    createdOrder.shipping_status,
+    'shopify_webhook',
+    'Order imported from Shopify'
+  )
 
   return { ok: true, skipped: false, orderId: createdOrder.id }
 }

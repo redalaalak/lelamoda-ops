@@ -4,34 +4,9 @@ import Link from 'next/link'
 import OrderActions from '@/components/orders/OrderActions'
 import OrderTimeline from '@/components/orders/OrderTimeline'
 import OrderPipeline from '@/components/orders/OrderPipeline'
+import { STATUS_COLOR, STATUS_LABEL } from '@/lib/orders/constants'
 
 export const dynamic = 'force-dynamic'
-
-const statusColors: Record<string, string> = {
-  pending_confirmation: 'bg-amber-100 text-amber-700',
-  confirmed: 'bg-emerald-100 text-emerald-700',
-  to_edit: 'bg-orange-100 text-orange-700',
-  canceled_confirmation: 'bg-red-100 text-red-700',
-  processing: 'bg-blue-100 text-blue-700',
-  shipped: 'bg-violet-100 text-violet-700',
-  delivered: 'bg-emerald-100 text-emerald-700',
-  returned: 'bg-gray-100 text-gray-600',
-  blocked_customer: 'bg-red-200 text-red-800',
-  out_of_stock: 'bg-yellow-100 text-yellow-700',
-}
-
-const statusLabels: Record<string, string> = {
-  pending_confirmation: 'Pending',
-  confirmed: 'Confirmed',
-  to_edit: 'To Edit',
-  canceled_confirmation: 'Canceled',
-  processing: 'Processing',
-  shipped: 'Shipped',
-  delivered: 'Delivered',
-  returned: 'Returned',
-  blocked_customer: 'Blocked',
-  out_of_stock: 'Out of Stock',
-}
 
 export default async function OrderDetailsPage({ params }: { params: { id: string } }) {
   const { data: order } = await supabaseAdmin
@@ -81,8 +56,8 @@ export default async function OrderDetailsPage({ params }: { params: { id: strin
           <h1 className="text-lg font-bold text-gray-900">
             {order.shopify_order_name || `#${order.shopify_order_number}`}
           </h1>
-          <span className={`px-2.5 py-0.5 rounded-md text-xs font-semibold ${statusColors[order.business_status] || 'bg-gray-100 text-gray-600'}`}>
-            {statusLabels[order.business_status] || order.business_status}
+          <span className={`px-2.5 py-0.5 rounded-md text-xs font-semibold ${STATUS_COLOR[order.business_status] || 'bg-gray-100 text-gray-600'}`}>
+            {STATUS_LABEL[order.business_status] || order.business_status}
           </span>
         </div>
         <div className="flex items-center gap-2">
@@ -112,13 +87,27 @@ export default async function OrderDetailsPage({ params }: { params: { id: strin
           <div className="bg-white rounded-xl border border-gray-100 p-5">
             {items && items.length > 0 ? items.map((item: any, idx: number) => (
               <div key={item.id} className={`flex items-center gap-4 ${idx > 0 ? 'pt-4 mt-4 border-t border-gray-50' : ''}`}>
-                {item.image_url ? (
+                {item.shopify_product_id ? (
+                  <Link href={`/products/${item.shopify_product_id}`} className="shrink-0">
+                    {item.image_url ? (
+                      <img src={item.image_url} alt={item.title} className="w-16 h-16 object-cover rounded-lg border border-gray-100 hover:opacity-80 transition" />
+                    ) : (
+                      <div className="w-16 h-16 rounded-lg bg-gray-100 flex items-center justify-center text-2xl hover:bg-gray-200 transition">📦</div>
+                    )}
+                  </Link>
+                ) : item.image_url ? (
                   <img src={item.image_url} alt={item.title} className="w-16 h-16 object-cover rounded-lg border border-gray-100 shrink-0" />
                 ) : (
                   <div className="w-16 h-16 rounded-lg bg-gray-100 flex items-center justify-center shrink-0 text-2xl">📦</div>
                 )}
                 <div className="flex-1 min-w-0">
-                  <div className="font-semibold text-sm text-gray-900">{item.title}</div>
+                  {item.shopify_product_id ? (
+                    <Link href={`/products/${item.shopify_product_id}`} className="font-semibold text-sm text-emerald-600 hover:underline">
+                      {item.title}
+                    </Link>
+                  ) : (
+                    <div className="font-semibold text-sm text-gray-900">{item.title}</div>
+                  )}
                   {item.variant_title && (
                     <div className="text-xs text-gray-400 mt-0.5">{item.variant_title}</div>
                   )}
@@ -292,13 +281,46 @@ export default async function OrderDetailsPage({ params }: { params: { id: strin
             </div>
           </div>
 
-          {/* Products link */}
+          {/* Products — link to product pages */}
           {items && items.length > 0 && (
             <div className="bg-white rounded-xl border border-gray-100 p-5">
-              <div className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">products link</div>
-              {items.map((item: any) => (
-                <div key={item.id} className="text-sm text-emerald-600 hover:underline truncate cursor-pointer">{item.title}</div>
-              ))}
+              <div className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">Products</div>
+              <div className="space-y-2">
+                {items.map((item: any) => (
+                  item.shopify_product_id ? (
+                    <Link
+                      key={item.id}
+                      href={`/products/${item.shopify_product_id}`}
+                      className="flex items-center gap-3 hover:bg-gray-50 rounded-lg p-1 -mx-1 transition group"
+                    >
+                      {item.image_url ? (
+                        <img src={item.image_url} alt={item.title} className="w-10 h-10 rounded-lg object-cover border border-gray-100 shrink-0" />
+                      ) : (
+                        <div className="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center text-gray-300 shrink-0 text-lg">📦</div>
+                      )}
+                      <div className="flex-1 min-w-0">
+                        <div className="text-sm font-medium text-emerald-600 group-hover:underline truncate">{item.title}</div>
+                        {item.variant_title && <div className="text-xs text-gray-400">{item.variant_title}</div>}
+                      </div>
+                      <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} className="text-gray-300 shrink-0">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                      </svg>
+                    </Link>
+                  ) : (
+                    <div key={item.id} className="flex items-center gap-3 p-1">
+                      {item.image_url ? (
+                        <img src={item.image_url} alt={item.title} className="w-10 h-10 rounded-lg object-cover border border-gray-100 shrink-0" />
+                      ) : (
+                        <div className="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center text-gray-300 shrink-0 text-lg">📦</div>
+                      )}
+                      <div className="flex-1 min-w-0">
+                        <div className="text-sm font-medium text-gray-700 truncate">{item.title}</div>
+                        {item.variant_title && <div className="text-xs text-gray-400">{item.variant_title}</div>}
+                      </div>
+                    </div>
+                  )
+                ))}
+              </div>
             </div>
           )}
 
@@ -346,8 +368,8 @@ export default async function OrderDetailsPage({ params }: { params: { id: strin
                     </div>
                     <div className="text-right shrink-0">
                       <div className="text-xs font-semibold text-gray-900">MAD{Number(o.total_price).toFixed(0)}</div>
-                      <span className={`text-xs px-1.5 py-0.5 rounded font-medium ${statusColors[o.business_status] || 'bg-gray-100 text-gray-600'}`}>
-                        {statusLabels[o.business_status] || o.business_status}
+                      <span className={`text-xs px-1.5 py-0.5 rounded font-medium ${STATUS_COLOR[o.business_status] || 'bg-gray-100 text-gray-600'}`}>
+                        {STATUS_LABEL[o.business_status] || o.business_status}
                       </span>
                     </div>
                   </Link>

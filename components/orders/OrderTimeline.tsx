@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { STATUS_LABEL } from '@/lib/orders/constants'
 
 type HistoryEntry = {
   id: string
@@ -9,19 +10,6 @@ type HistoryEntry = {
   changed_by_source: string
   reason?: string | null
   created_at: string
-}
-
-const statusLabels: Record<string, string> = {
-  pending_confirmation: 'Pending',
-  confirmed: 'Confirmed',
-  to_edit: 'To Edit',
-  canceled_confirmation: 'Canceled',
-  processing: 'Processing',
-  shipped: 'Shipped',
-  delivered: 'Delivered',
-  returned: 'Returned',
-  blocked_customer: 'Blocked',
-  out_of_stock: 'Out of Stock',
 }
 
 function formatTime(dateStr: string) {
@@ -152,12 +140,12 @@ export default function OrderTimeline({
                       <span className="text-sm text-gray-600">
                         {e.old_business_status && (
                           <span className="text-gray-400">
-                            {statusLabels[e.old_business_status] || e.old_business_status}
+                            {STATUS_LABEL[e.old_business_status] || e.old_business_status}
                             {' → '}
                           </span>
                         )}
                         <span className="font-medium text-gray-800">
-                          {statusLabels[e.new_business_status || ''] || e.new_business_status}
+                          {STATUS_LABEL[e.new_business_status || ''] || e.new_business_status}
                         </span>
                         {e.reason && e.changed_by_source !== 'comment' && (
                           <span className="text-gray-400 ml-1">— {e.reason}</span>

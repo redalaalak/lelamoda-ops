@@ -2,19 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-
-const ALL_STATUSES = [
-  { value: 'pending_confirmation', label: 'Pending', color: 'text-amber-600' },
-  { value: 'confirmed', label: 'Confirmed', color: 'text-emerald-600' },
-  { value: 'to_edit', label: 'To Edit', color: 'text-orange-600' },
-  { value: 'canceled_confirmation', label: 'Canceled', color: 'text-red-600' },
-  { value: 'processing', label: 'Processing', color: 'text-blue-600' },
-  { value: 'shipped', label: 'Shipped', color: 'text-violet-600' },
-  { value: 'delivered', label: 'Delivered', color: 'text-emerald-700' },
-  { value: 'returned', label: 'Returned', color: 'text-gray-600' },
-  { value: 'out_of_stock', label: 'Out of Stock', color: 'text-yellow-700' },
-  { value: 'blocked_customer', label: 'Blocked', color: 'text-red-800' },
-]
+import { BUSINESS_STATUS_LIST } from '@/lib/orders/constants'
 
 export default function OrderActions({ orderId, currentStatus }: { orderId: string; currentStatus: string }) {
   const [open, setOpen] = useState(false)
@@ -57,7 +45,7 @@ export default function OrderActions({ orderId, currentStatus }: { orderId: stri
           </svg>
         ) : (
           <>
-            More actions
+            Move status
             <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
             </svg>
@@ -70,13 +58,14 @@ export default function OrderActions({ orderId, currentStatus }: { orderId: stri
           <div className="px-3 py-2 text-xs font-semibold text-gray-400 uppercase tracking-wide border-b border-gray-50">
             Change Status
           </div>
-          {ALL_STATUSES.filter(s => s.value !== currentStatus).map(s => (
+          {BUSINESS_STATUS_LIST.filter(s => s.value !== currentStatus).map(s => (
             <button
               key={s.value}
               onClick={() => changeStatus(s.value)}
-              className={`w-full text-left px-3 py-2 text-sm hover:bg-gray-50 transition ${s.color}`}
+              className={`w-full text-left px-3 py-2 text-sm hover:bg-gray-50 transition flex items-center gap-2`}
             >
-              {s.label}
+              <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${s.dot}`} />
+              <span className="text-gray-700">{s.label}</span>
             </button>
           ))}
         </div>

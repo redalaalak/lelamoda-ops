@@ -222,11 +222,26 @@ export async function POST(req: Request) {
           mapped.shopify_order_id = `import_${orderName}_${Date.now()}`
         }
 
-        const { error: orderErr } = await supabaseAdmin
+        const { data: createdOrder, error: orderErr } = await supabaseAdmin
           .from('orders')
           .insert({ ...mapped, customer_id: customerId })
+          .select('id, business_status, payment_status, stock_status, shipping_status')
+          .single()
 
         if (orderErr) { errors.push(`${orderName}: ${orderErr.message}`); continue }
+
+        // Record initial status history
+        if (createdOrder) {
+          await supabaseAdmin.from('order_status_history').insert({
+            order_id: createdOrder.id,
+            new_business_status: createdOrder.business_status,
+            new_payment_status: createdOrder.payment_status,
+            new_stock_status: createdOrder.stock_status,
+            new_shipping_status: createdOrder.shipping_status,
+            changed_by_source: 'csv_import',
+            reason: 'Order imported via CSV',
+          })
+        }
         imported++
       } catch (e: any) {
         errors.push(e.message)

@@ -1,15 +1,8 @@
 import { supabaseAdmin } from '@/lib/supabase/admin'
 import Link from 'next/link'
-import { notFound } from 'next/navigation'
+import { STATUS_COLOR, STATUS_LABEL } from '@/lib/orders/constants'
 
 export const dynamic = 'force-dynamic'
-
-const statusColors: Record<string, string> = {
-  pending_confirmation: 'bg-amber-100 text-amber-700',
-  confirmed: 'bg-emerald-100 text-emerald-700',
-  to_edit: 'bg-orange-100 text-orange-700',
-  canceled_confirmation: 'bg-red-100 text-red-700',
-}
 
 export default async function ConfirmationCenterPage({
   searchParams,
@@ -132,8 +125,8 @@ export default async function ConfirmationCenterPage({
                   <div className="font-semibold text-gray-900 text-sm">{order.customer_full_name}</div>
                   <div className="text-xs text-gray-400">{order.customer_phone}</div>
                 </div>
-                <span className={`ml-auto px-2 py-0.5 rounded-md text-xs font-medium ${statusColors[order.business_status] || 'bg-gray-100 text-gray-600'}`}>
-                  {order.business_status}
+                <span className={`ml-auto px-2 py-0.5 rounded-md text-xs font-medium ${STATUS_COLOR[order.business_status] || 'bg-gray-100 text-gray-600'}`}>
+                  {STATUS_LABEL[order.business_status] || order.business_status}
                 </span>
               </div>
               <div className="text-xs text-gray-500 border-t border-gray-50 pt-3 space-y-1">
