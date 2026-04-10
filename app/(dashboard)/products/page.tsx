@@ -26,7 +26,8 @@ export default async function ProductsPage() {
     p.variants.every((v: any) => v.inventory_quantity === 0)
   ).length
 
-  const categories = [...new Set(products.map((p: any) => p.product_type).filter(Boolean))].length
+  const categorySet = new Set<string>(products.map((p: any) => p.product_type).filter(Boolean))
+  const categories = categorySet.size
 
   return (
     <div className="p-6">
