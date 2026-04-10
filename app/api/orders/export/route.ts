@@ -1,11 +1,22 @@
 import { supabaseAdmin } from '@/lib/supabase/admin'
 import { NextResponse } from 'next/server'
 
-export async function GET() {
-  const { data: orders } = await supabaseAdmin
+export async function GET(req: Request) {
+  const url = new URL(req.url)
+  const from = url.searchParams.get('from')
+  const to = url.searchParams.get('to')
+  const status = url.searchParams.get('status')
+
+  let query = supabaseAdmin
     .from('orders')
     .select('*, order_items(title, variant_title, quantity, unit_price, sku)')
     .order('created_at', { ascending: false })
+
+  if (from) query = query.gte('created_at', from)
+  if (to) query = query.lte('created_at', to + 'T23:59:59')
+  if (status) query = query.eq('business_status', status)
+
+  const { data: orders } = await query
 
   if (!orders) return NextResponse.json({ error: 'No data' }, { status: 500 })
 
