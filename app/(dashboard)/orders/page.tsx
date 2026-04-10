@@ -1,5 +1,6 @@
 import { supabaseAdmin } from '@/lib/supabase/admin'
 import OrdersTable from '@/components/orders/OrdersTable'
+import ImportExportButtons from '@/components/orders/ImportExportButtons'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
@@ -29,9 +30,12 @@ export default async function OrdersPage() {
     <div className="p-6">
       <div className="flex items-center justify-between mb-5">
         <h1 className="text-lg font-semibold text-gray-900">Orders</h1>
-        <div className="flex items-center gap-2">
-          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-          <span className="text-xs text-gray-400">Live</span>
+        <div className="flex items-center gap-3">
+          <ImportExportButtons />
+          <div className="flex items-center gap-1.5">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span className="text-xs text-gray-400">Live</span>
+          </div>
         </div>
       </div>
 
