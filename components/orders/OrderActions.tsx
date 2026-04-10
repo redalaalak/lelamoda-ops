@@ -1,12 +1,13 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { BUSINESS_STATUS_LIST } from '@/lib/orders/constants'
 
 export default function OrderActions({ orderId, currentStatus }: { orderId: string; currentStatus: string }) {
   const [open, setOpen] = useState(false)
-  const [loading, setLoading] = useState(false)
+  const [status, setStatus] = useState(currentStatus)
+  const [isPending, startTransition] = useTransition()
   const ref = useRef<HTMLDivElement>(null)
   const router = useRouter()
 
@@ -18,17 +19,21 @@ export default function OrderActions({ orderId, currentStatus }: { orderId: stri
     return () => document.removeEventListener('mousedown', handleClick)
   }, [])
 
-  const changeStatus = async (status: string) => {
-    if (status === currentStatus) { setOpen(false); return }
-    setLoading(true)
+  const changeStatus = async (newStatus: string) => {
+    if (newStatus === status) { setOpen(false); return }
     setOpen(false)
-    await fetch(`/api/orders/${orderId}/status`, {
+    const prev = status
+    setStatus(newStatus) // optimistic
+    const res = await fetch(`/api/orders/${orderId}/status`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ status }),
+      body: JSON.stringify({ status: newStatus }),
     })
-    setLoading(false)
-    router.refresh()
+    if (!res.ok) {
+      setStatus(prev) // revert
+    } else {
+      startTransition(() => router.refresh())
+    }
   }
 
   return (
@@ -38,7 +43,7 @@ export default function OrderActions({ orderId, currentStatus }: { orderId: stri
         disabled={loading}
         className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium border border-gray-200 rounded-lg text-gray-600 hover:bg-gray-50 transition disabled:opacity-60"
       >
-        {loading ? (
+        {isPending ? (
           <svg className="animate-spin" width="14" height="14" fill="none" viewBox="0 0 24 24">
             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
@@ -58,7 +63,7 @@ export default function OrderActions({ orderId, currentStatus }: { orderId: stri
           <div className="px-3 py-2 text-xs font-semibold text-gray-400 uppercase tracking-wide border-b border-gray-50">
             Change Status
           </div>
-          {BUSINESS_STATUS_LIST.filter(s => s.value !== currentStatus).map(s => (
+          {BUSINESS_STATUS_LIST.filter(s => s.value !== status).map(s => (
             <button
               key={s.value}
               onClick={() => changeStatus(s.value)}
