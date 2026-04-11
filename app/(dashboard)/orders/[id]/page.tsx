@@ -6,6 +6,7 @@ import OrderTimeline from '@/components/orders/OrderTimeline'
 import OrderPipeline from '@/components/orders/OrderPipeline'
 import OrderStatusBadge from '@/components/orders/OrderStatusBadge'
 import EditOrderPanel from '@/components/orders/EditOrderPanel'
+import CustomerCard from '@/components/orders/CustomerCard'
 import { OrderStatusProvider } from '@/components/orders/OrderStatusContext'
 import { STATUS_COLOR, STATUS_LABEL } from '@/lib/orders/constants'
 
@@ -32,8 +33,13 @@ export default async function OrderDetailsPage({ params }: { params: { id: strin
       .order('created_at', { ascending: true }),
   ])
 
+  // Load linked customer profile
+  const { data: linkedCustomer } = order.customer_id
+    ? await supabaseAdmin.from('customers').select('*').eq('id', order.customer_id).single()
+    : { data: null }
+
   // Customer stats
-  let totalOrders = 1
+  let totalOrders    = 1
   let returnedOrders = 0
   let otherOrders: any[] = []
 
@@ -43,12 +49,10 @@ export default async function OrderDetailsPage({ params }: { params: { id: strin
       supabaseAdmin.from('orders').select('*', { count: 'exact', head: true }).eq('customer_id', order.customer_id).eq('business_status', 'returned'),
       supabaseAdmin.from('orders').select('id, shopify_order_name, total_price, business_status, created_at, order_items(title, image_url)').eq('customer_id', order.customer_id).neq('id', params.id).order('created_at', { ascending: false }).limit(3),
     ])
-    totalOrders = countRes.count ?? 1
+    totalOrders    = countRes.count    ?? 1
     returnedOrders = returnedRes.count ?? 0
-    otherOrders = othersRes.data ?? []
+    otherOrders    = othersRes.data    ?? []
   }
-
-  const whatsappNumber = (order.customer_phone || '').replace(/[^0-9]/g, '')
 
   return (
     <OrderStatusProvider
@@ -95,7 +99,6 @@ export default async function OrderDetailsPage({ params }: { params: { id: strin
 
           {/* Products + Pricing — editable */}
           <EditOrderPanel
-            key={order.updated_at}
             orderId={order.id}
             initialItems={(items || []).map((item: any) => ({
               id:                 item.id,
@@ -178,130 +181,27 @@ export default async function OrderDetailsPage({ params }: { params: { id: strin
         {/* ── RIGHT COLUMN ────────────────────────────── */}
         <div className="space-y-4">
 
-          {/* Customer */}
-          <div className="bg-white rounded-xl border border-gray-100 p-5">
-            <div className="flex items-center justify-between mb-3">
-              <h2 className="font-semibold text-sm text-gray-900">Customer</h2>
-            </div>
-            <div className="font-semibold text-sm text-gray-900">{order.customer_full_name}</div>
-            {order.customer_email && (
-              <div className="text-xs text-gray-400 mt-0.5">{order.customer_email}</div>
-            )}
-            {order.customer_phone && (
-              <div className="text-sm text-gray-600 mt-1 mb-3">{order.customer_phone}</div>
-            )}
-
-            {/* Contact buttons */}
-            {order.customer_phone && (
-              <div className="flex items-center gap-2 mb-4">
-                <a
-                  href={`https://wa.me/${whatsappNumber}`}
-                  target="_blank" rel="noopener noreferrer"
-                  className="w-8 h-8 rounded-lg bg-green-50 flex items-center justify-center hover:bg-green-100 transition"
-                  title="WhatsApp"
-                >
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="#22c55e">
-                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
-                    <path d="M12 0C5.373 0 0 5.373 0 12c0 2.104.544 4.078 1.5 5.797L0 24l6.386-1.478A11.94 11.94 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.882a9.866 9.866 0 01-5.031-1.378l-.361-.214-3.741.981.998-3.648-.235-.374A9.847 9.847 0 012.118 12C2.118 6.534 6.534 2.118 12 2.118S21.882 6.534 21.882 12 17.466 21.882 12 21.882z"/>
-                  </svg>
-                </a>
-                <a
-                  href={`tel:${order.customer_phone}`}
-                  className="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center hover:bg-blue-100 transition"
-                  title="Call"
-                >
-                  <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="#3b82f6" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                  </svg>
-                </a>
-              </div>
-            )}
-
-            {/* Shipping Address */}
-            <div className="border-t border-gray-50 pt-4">
-              <div className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Shipping Address</div>
-              <div className="text-sm text-gray-700 space-y-0.5">
-                {(order.shipping_first_name || order.shipping_last_name) && (
-                  <div>{[order.shipping_first_name, order.shipping_last_name].filter(Boolean).join(' ')}</div>
-                )}
-                {order.shipping_phone && <div className="text-gray-500">{order.shipping_phone}</div>}
-                {order.shipping_address1 && <div>{order.shipping_address1}</div>}
-                {order.shipping_address2 && <div>{order.shipping_address2}</div>}
-                <div className="text-gray-500">
-                  {[order.shipping_city, order.shipping_province].filter(Boolean).join(', ')}
-                </div>
-                {order.shipping_zip && <div className="text-gray-400 text-xs">{order.shipping_zip}</div>}
-                <div className="text-gray-400 text-xs">{order.shipping_country_code || 'MA'}</div>
-              </div>
-            </div>
-
-            {/* Billing */}
-            <div className="border-t border-gray-50 pt-4 mt-4">
-              <div className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Billing Address</div>
-              <div className="text-xs text-gray-400">Same as shipping address</div>
-            </div>
-          </div>
-
-          {/* Products — link to product pages */}
-          {items && items.length > 0 && (
-            <div className="bg-white rounded-xl border border-gray-100 p-5">
-              <div className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">Products</div>
-              <div className="space-y-2">
-                {items.map((item: any) => (
-                  item.shopify_product_id ? (
-                    <Link
-                      key={item.id}
-                      href={`/products/${item.shopify_product_id}`}
-                      className="flex items-center gap-3 hover:bg-gray-50 rounded-lg p-1 -mx-1 transition group"
-                    >
-                      {item.image_url ? (
-                        <img src={item.image_url} alt={item.title} className="w-10 h-10 rounded-lg object-cover border border-gray-100 shrink-0" />
-                      ) : (
-                        <div className="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center text-gray-300 shrink-0 text-lg">📦</div>
-                      )}
-                      <div className="flex-1 min-w-0">
-                        <div className="text-sm font-medium text-emerald-600 group-hover:underline truncate">{item.title}</div>
-                        {item.variant_title && <div className="text-xs text-gray-400">{item.variant_title}</div>}
-                      </div>
-                      <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} className="text-gray-300 shrink-0">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-                      </svg>
-                    </Link>
-                  ) : (
-                    <div key={item.id} className="flex items-center gap-3 p-1">
-                      {item.image_url ? (
-                        <img src={item.image_url} alt={item.title} className="w-10 h-10 rounded-lg object-cover border border-gray-100 shrink-0" />
-                      ) : (
-                        <div className="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center text-gray-300 shrink-0 text-lg">📦</div>
-                      )}
-                      <div className="flex-1 min-w-0">
-                        <div className="text-sm font-medium text-gray-700 truncate">{item.title}</div>
-                        {item.variant_title && <div className="text-xs text-gray-400">{item.variant_title}</div>}
-                      </div>
-                    </div>
-                  )
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Customer Lifetime */}
-          <div className="bg-white rounded-xl border border-gray-100 p-5">
-            <div className="flex items-center justify-between mb-3">
-              <div className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Customer Lifetime</div>
-              <button className="text-xs text-emerald-600 hover:text-emerald-700 font-medium">Review</button>
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div className="text-center p-3 bg-gray-50 rounded-lg">
-                <div className="text-2xl font-bold text-gray-900">{totalOrders}</div>
-                <div className="text-xs text-gray-400 mt-0.5">Orders</div>
-              </div>
-              <div className="text-center p-3 bg-gray-50 rounded-lg">
-                <div className="text-2xl font-bold text-gray-900">{returnedOrders}</div>
-                <div className="text-xs text-gray-400 mt-0.5">Returned</div>
-              </div>
-            </div>
-          </div>
+          {/* Customer card — EGROW-style with full edit capability */}
+          <CustomerCard
+            orderId={order.id}
+            customer={linkedCustomer ?? null}
+            orderCustomerName={order.customer_full_name ?? null}
+            orderCustomerPhone={order.customer_phone ?? null}
+            orderCustomerEmail={order.customer_email ?? null}
+            shipping={{
+              first_name:   order.shipping_first_name   ?? null,
+              last_name:    order.shipping_last_name    ?? null,
+              phone:        order.shipping_phone        ?? null,
+              address1:     order.shipping_address1     ?? null,
+              address2:     order.shipping_address2     ?? null,
+              city:         order.shipping_city         ?? null,
+              province:     order.shipping_province     ?? null,
+              zip:          order.shipping_zip          ?? null,
+              country_code: order.shipping_country_code ?? null,
+            }}
+            totalOrders={totalOrders}
+            returnedOrders={returnedOrders}
+          />
 
           {/* Orders History */}
           {otherOrders.length > 0 && (

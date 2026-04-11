@@ -1,7 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef, useCallback } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, useCallback } from 'react'
 import Link from 'next/link'
 
 // ---------------------------------------------------------------------------
@@ -253,8 +252,6 @@ export default function EditOrderPanel({
   initialShipping: number
   initialDiscount: number
 }) {
-  const router = useRouter()
-
   const [isEditing, setIsEditing] = useState(false)
   const [items, setItems] = useState<DraftItem[]>(initialItems)
   const [removedIds, setRemovedIds] = useState<string[]>([])
@@ -265,16 +262,6 @@ export default function EditOrderPanel({
 
   const [showSearch, setShowSearch] = useState(false)
   const [showCustomForm, setShowCustomForm] = useState(false)
-
-  // Sync with fresh server props after router.refresh()
-  useEffect(() => {
-    if (!isEditing) {
-      setItems(initialItems)
-      setShipping(initialShipping)
-      setDiscount(initialDiscount)
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [initialItems, initialShipping, initialDiscount])
 
   // Computed totals — always live
   const subtotal = items.reduce((s, i) => s + i.quantity * i.unit_price, 0)
@@ -345,25 +332,46 @@ export default function EditOrderPanel({
     setSaving(true)
     setSaveError(null)
     try {
-      const res = await fetch(`/api/orders/${orderId}/edit`, {
-        method: 'PATCH',
+      const payload = {
+        items:          items.map(it => ({
+          id:                 it.id,
+          shopify_product_id: it.shopify_product_id ?? null,
+          shopify_variant_id: it.shopify_variant_id ?? null,
+          sku:                it.sku ?? null,
+          title:              it.title,
+          variant_title:      it.variant_title ?? null,
+          quantity:           it.quantity,
+          unit_price:         it.unit_price,
+          is_custom:          it.is_custom ?? false,
+        })),
+        removedItemIds: removedIds,
+        shipping_price: shipping,
+        discount_total: discount,
+      }
+
+      const res  = await fetch(`/api/orders/${orderId}/edit`, {
+        method:  'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          items,
-          removedItemIds: removedIds,
-          shipping_price: shipping,
-          discount_total: discount,
-        }),
+        body:    JSON.stringify(payload),
       })
+
       const data = await res.json()
-      if (!data.ok) throw new Error(data.error || 'Save failed')
-      setIsEditing(false)
-      router.refresh()
+      console.log('[EditOrderPanel] save response:', data)
+
+      if (!res.ok || !data.ok) {
+        throw new Error(data.error || `Server error ${res.status}`)
+      }
+
+      // Hard reload — server re-renders with authoritative DB data.
+      // This guarantees the UI matches the database with no race conditions.
+      window.location.reload()
+
     } catch (e: any) {
       setSaveError(e.message)
-    } finally {
       setSaving(false)
     }
+    // Note: setSaving(false) intentionally omitted on success path —
+    // the page reloads before it matters.
   }
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -411,10 +419,11 @@ export default function EditOrderPanel({
         )}
       </div>
 
-      {/* Save error */}
+      {/* Save error — prominent banner */}
       {saveError && (
-        <div className="mb-3 px-3 py-2 text-xs text-red-700 bg-red-50 border border-red-100 rounded-lg">
-          {saveError}
+        <div className="mb-4 px-4 py-3 text-sm font-medium text-red-800 bg-red-50 border border-red-300 rounded-xl flex items-start gap-2">
+          <span className="shrink-0 mt-0.5">⚠️</span>
+          <span>{saveError}</span>
         </div>
       )}
 

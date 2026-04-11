@@ -1,4 +1,5 @@
 import { supabaseAdmin } from '@/lib/supabase/admin'
+import Link from 'next/link'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
@@ -45,7 +46,7 @@ export default async function CustomersPage() {
               customers.map((c) => (
                 <tr key={c.id} className="border-b border-slate-100 hover:bg-slate-50">
                   <td className="px-4 py-3">
-                    <div className="font-medium text-sm text-slate-900">{c.full_name}</div>
+                    <Link href={`/customers/${c.id}`} className="font-medium text-sm text-emerald-600 hover:underline">{c.full_name || '(no name)'}</Link>
                     <div className="text-xs text-slate-400">{c.email}</div>
                   </td>
                   <td className="px-4 py-3 text-sm text-slate-600">{c.phone}</td>
