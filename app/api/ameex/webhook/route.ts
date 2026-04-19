@@ -1,14 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase/admin'
-
-const AMEEX_STATUS_TO_BUSINESS: Record<string, string> = {
-  DELIVERED: 'delivered',
-  RETURNED: 'returned',
-  IN_PROGRESS: 'shipped',
-  DISTRIBUTION: 'shipped',
-  IN_SHIPMENT: 'shipped',
-  PICKED_UP: 'shipped',
-}
+import { runAutomations } from '@/lib/automations/runner'
 
 export async function POST(req: NextRequest) {
   try {
@@ -23,22 +15,13 @@ export async function POST(req: NextRequest) {
 
     if (!code || !statut) return NextResponse.json({ ok: true })
 
-    // Update order by ameex_parcel_code
-    const update: Record<string, string | null> = {
-      ameex_status: statut,
-      ameex_status_name: statutName || statut,
-    }
-
-    // Auto-update business_status for key statuses
-    const businessStatus = AMEEX_STATUS_TO_BUSINESS[statut]
-    if (businessStatus) update.business_status = businessStatus
-
+    // Update ameex tracking fields
     await supabaseAdmin
       .from('orders')
-      .update(update)
+      .update({ ameex_status: statut, ameex_status_name: statutName || statut })
       .eq('ameex_parcel_code', code)
 
-    // Log the tracking event
+    // Get order
     const { data: order } = await supabaseAdmin
       .from('orders')
       .select('id')
@@ -46,6 +29,7 @@ export async function POST(req: NextRequest) {
       .single()
 
     if (order) {
+      // Log event
       await supabaseAdmin.from('order_events').insert({
         order_id: order.id,
         event_type: 'ameex_status',
@@ -55,6 +39,9 @@ export async function POST(req: NextRequest) {
         source: 'ameex',
         metadata: { code, statut, statut_s: statutS, statut_s_name: statutSName },
       })
+
+      // Run automations (Ameex status → order status, WhatsApp, etc.)
+      await runAutomations('ameex_status', statut, order.id)
     }
 
     return NextResponse.json({ ok: true })
