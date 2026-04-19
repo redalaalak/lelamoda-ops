@@ -83,7 +83,7 @@ export default function ProductsTable({ products }: { products: Product[] }) {
             return (
               <tr
                 key={product.id}
-                onClick={() => window.location.href = `/products/${product.id}`}
+                onClick={() => window.location.href = `/admin/products/${product.id}`}
                 className="border-b border-gray-50 hover:bg-gray-50 transition-colors cursor-pointer group"
               >
                 <td className="px-4 py-3" onClick={e => e.stopPropagation()}>
