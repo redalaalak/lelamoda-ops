@@ -14,7 +14,7 @@ export default async function DeliveryCenterPage() {
   return (
     <div className="p-6">
       <div className="flex items-center gap-3 mb-5">
-        <Link href="/centers" className="text-gray-400 hover:text-gray-600 text-sm">Centers</Link>
+        <Link href="/admin/centers" className="text-gray-400 hover:text-gray-600 text-sm">Centers</Link>
         <span className="text-gray-300">/</span>
         <h1 className="text-lg font-semibold text-gray-900">Delivery Center</h1>
         <span className="ml-auto text-xs text-gray-400">{orders?.length || 0} orders</span>

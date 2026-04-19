@@ -59,7 +59,7 @@ export default async function ConfirmationCenterPage({
     <div className="p-6">
       {/* Header */}
       <div className="flex items-center gap-3 mb-5">
-        <Link href="/centers" className="text-gray-400 hover:text-gray-600 text-sm">Centers</Link>
+        <Link href="/admin/centers" className="text-gray-400 hover:text-gray-600 text-sm">Centers</Link>
         <span className="text-gray-300">/</span>
         <h1 className="text-lg font-semibold text-gray-900">Confirmation Center</h1>
       </div>
@@ -98,7 +98,7 @@ export default async function ConfirmationCenterPage({
               {pendingOrders?.map((o) => (
                 <Link
                   key={o.id}
-                  href={`/centers/confirmation?id=${o.id}`}
+                  href={`/admin/centers/confirmation?id=${o.id}`}
                   className={`flex items-center justify-between px-4 py-3 border-b border-gray-50 hover:bg-gray-50 transition-colors ${
                     o.id === currentId ? 'bg-emerald-50 border-l-2 border-l-emerald-400' : ''
                   }`}
@@ -235,7 +235,7 @@ export default async function ConfirmationCenterPage({
                   </a>
                 )}
                 <Link
-                  href={`/orders/${order.id}`}
+                  href={`/admin/orders/${order.id}`}
                   className="w-full px-4 py-2.5 bg-gray-50 text-gray-700 text-sm font-semibold rounded-lg hover:bg-gray-100 transition flex items-center justify-center gap-2"
                 >
                   View Full Order

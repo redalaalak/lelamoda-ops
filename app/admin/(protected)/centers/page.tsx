@@ -5,7 +5,7 @@ export const dynamic = 'force-dynamic'
 const centers = [
   {
     label: 'Confirmation',
-    href: '/centers/confirmation',
+    href: '/admin/centers/confirmation',
     desc: 'Confirm and validate orders',
     color: 'bg-amber-50 border-amber-200',
     iconColor: 'text-amber-500',
@@ -17,7 +17,7 @@ const centers = [
   },
   {
     label: 'Processing',
-    href: '/centers/processing',
+    href: '/admin/centers/processing',
     desc: 'Prepare and pack orders for shipment',
     color: 'bg-blue-50 border-blue-200',
     iconColor: 'text-blue-500',
@@ -29,7 +29,7 @@ const centers = [
   },
   {
     label: 'Shipping',
-    href: '/centers/shipping',
+    href: '/admin/centers/shipping',
     desc: 'Manage shipments and track parcels',
     color: 'bg-violet-50 border-violet-200',
     iconColor: 'text-violet-500',
@@ -41,7 +41,7 @@ const centers = [
   },
   {
     label: 'Delivery',
-    href: '/centers/delivery',
+    href: '/admin/centers/delivery',
     desc: 'Update delivery and update statuses',
     color: 'bg-emerald-50 border-emerald-200',
     iconColor: 'text-emerald-500',
@@ -54,7 +54,7 @@ const centers = [
   },
   {
     label: 'Follow Up',
-    href: '/centers/follow-up',
+    href: '/admin/centers/follow-up',
     desc: 'Follow up on pending and unreachable orders',
     color: 'bg-orange-50 border-orange-200',
     iconColor: 'text-orange-500',
@@ -66,7 +66,7 @@ const centers = [
   },
   {
     label: 'Return & Exchange',
-    href: '/centers/return',
+    href: '/admin/centers/return',
     desc: 'Handle returns and exchange requests',
     color: 'bg-red-50 border-red-200',
     iconColor: 'text-red-500',
@@ -78,7 +78,7 @@ const centers = [
   },
   {
     label: 'Out Of Stock',
-    href: '/centers/out-of-stock',
+    href: '/admin/centers/out-of-stock',
     desc: 'Manage orders with unavailable items',
     color: 'bg-gray-50 border-gray-200',
     iconColor: 'text-gray-500',
