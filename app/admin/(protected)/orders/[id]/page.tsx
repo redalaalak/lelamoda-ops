@@ -23,7 +23,7 @@ export default async function OrderDetailsPage({ params }: { params: { id: strin
 
   const [
     { data: items },
-    { data: events },
+    eventsResult,
   ] = await Promise.all([
     supabaseAdmin.from('order_items').select('*').eq('order_id', params.id),
     supabaseAdmin
@@ -32,6 +32,9 @@ export default async function OrderDetailsPage({ params }: { params: { id: strin
       .eq('order_id', params.id)
       .order('created_at', { ascending: true }),
   ])
+
+  // order_events table may not exist yet — fail gracefully
+  const events = eventsResult.error ? [] : (eventsResult.data || [])
 
   // Load linked customer profile
   const { data: linkedCustomer } = order.customer_id

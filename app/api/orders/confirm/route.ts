@@ -8,7 +8,7 @@ export async function POST(req: Request) {
     const formData = await req.formData()
     const orderId = formData.get('orderId') as string
     const newStatus = formData.get('status') as string
-    const redirectTo = (formData.get('redirect') as string) || '/centers/confirmation'
+    const redirectTo = (formData.get('redirect') as string) || '/admin/centers/confirmation'
 
     if (!ALLOWED.includes(newStatus)) {
       return NextResponse.json({ error: 'Invalid status' }, { status: 400 })
