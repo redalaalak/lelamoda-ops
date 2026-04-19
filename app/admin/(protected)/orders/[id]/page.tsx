@@ -10,6 +10,7 @@ import CustomerCard from '@/components/orders/CustomerCard'
 import { OrderStatusProvider } from '@/components/orders/OrderStatusContext'
 import { STATUS_COLOR, STATUS_LABEL } from '@/lib/orders/constants'
 import WhatsAppButton from '@/components/orders/WhatsAppButton'
+import AmeexButton from '@/components/orders/AmeexButton'
 
 export const dynamic = 'force-dynamic'
 
@@ -85,6 +86,16 @@ export default async function OrderDetailsPage({ params }: { params: { id: strin
             </svg>
             Print
           </button>
+          <AmeexButton
+            orderId={order.id}
+            parcelCode={order.ameex_parcel_code ?? null}
+            parcelStatus={order.ameex_status ?? null}
+            parcelStatusName={order.ameex_status_name ?? null}
+            defaultCity={order.shipping_city ?? ''}
+            defaultPhone={order.shipping_phone ?? order.customer_phone ?? ''}
+            defaultAddress={order.shipping_address1 ?? ''}
+            orderName={order.shopify_order_name ?? ''}
+          />
           <WhatsAppButton
             orderId={order.id}
             phone={order.customer_phone ?? order.shipping_phone ?? null}
