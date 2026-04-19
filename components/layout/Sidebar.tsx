@@ -6,7 +6,7 @@ import { usePathname, useRouter } from 'next/navigation'
 const nav = [
   {
     label: 'Home',
-    href: '/dashboard',
+    href: '/admin/dashboard',
     icon: (
       <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
         <path strokeLinecap="round" strokeLinejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
@@ -15,7 +15,7 @@ const nav = [
   },
   {
     label: 'Orders',
-    href: '/orders',
+    href: '/admin/orders',
     icon: (
       <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
         <path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
@@ -24,25 +24,25 @@ const nav = [
   },
   {
     label: 'Centers',
-    href: '/centers',
+    href: '/admin/centers',
     icon: (
       <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
         <path strokeLinecap="round" strokeLinejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
       </svg>
     ),
     children: [
-      { label: 'Confirmation', href: '/centers/confirmation' },
-      { label: 'Processing', href: '/centers/processing' },
-      { label: 'Shipping', href: '/centers/shipping' },
-      { label: 'Delivery', href: '/centers/delivery' },
-      { label: 'Follow Up', href: '/centers/follow-up' },
-      { label: 'Return & Exchange', href: '/centers/return' },
-      { label: 'Out Of Stock', href: '/centers/out-of-stock' },
+      { label: 'Confirmation', href: '/admin/centers/confirmation' },
+      { label: 'Processing', href: '/admin/centers/processing' },
+      { label: 'Shipping', href: '/admin/centers/shipping' },
+      { label: 'Delivery', href: '/admin/centers/delivery' },
+      { label: 'Follow Up', href: '/admin/centers/follow-up' },
+      { label: 'Return & Exchange', href: '/admin/centers/return' },
+      { label: 'Out Of Stock', href: '/admin/centers/out-of-stock' },
     ],
   },
   {
     label: 'Products',
-    href: '/products',
+    href: '/admin/products',
     icon: (
       <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
         <path strokeLinecap="round" strokeLinejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
@@ -51,7 +51,7 @@ const nav = [
   },
   {
     label: 'Customers',
-    href: '/customers',
+    href: '/admin/customers',
     icon: (
       <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
         <path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -70,7 +70,7 @@ export default function Sidebar() {
   }
 
   const isActive = (href: string) => {
-    if (href === '/dashboard') return pathname === '/dashboard'
+    if (href === '/admin/dashboard') return pathname === '/admin/dashboard'
     return pathname.startsWith(href)
   }
 
@@ -131,7 +131,7 @@ export default function Sidebar() {
       {/* Bottom */}
       <div className="px-3 py-3 border-t border-gray-100 space-y-0.5">
         <Link
-          href="/settings"
+          href="/admin/settings"
           className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-500 hover:bg-gray-50 hover:text-gray-900 transition-colors"
         >
           <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} className="text-gray-400">

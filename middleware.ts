@@ -1,8 +1,6 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
-const PUBLIC_PATHS = ['/admin/login', '/api/auth']
-
 async function computeToken(secret: string): Promise<string> {
   const enc = new TextEncoder()
   const key = await crypto.subtle.importKey('raw', enc.encode(secret), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign'])
@@ -13,8 +11,13 @@ async function computeToken(secret: string): Promise<string> {
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
-  const isPublic = PUBLIC_PATHS.some(p => pathname.startsWith(p))
-  if (isPublic) return NextResponse.next()
+  // Only protect /admin/* routes
+  if (!pathname.startsWith('/admin')) return NextResponse.next()
+
+  // Login page and auth API are public
+  if (pathname.startsWith('/admin/login') || pathname.startsWith('/api/auth')) {
+    return NextResponse.next()
+  }
 
   const token = request.cookies.get('admin_token')?.value
   const secret = process.env.ADMIN_SECRET || 'tawsilak-secret-dev'
@@ -28,5 +31,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/((?!_next/static|_next/image|favicon.ico).*)'],
+  matcher: ['/admin/:path*'],
 }

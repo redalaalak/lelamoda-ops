@@ -22,7 +22,7 @@ export default function LoginPage() {
     })
 
     if (res.ok) {
-      router.push('/dashboard')
+      router.push('/admin/dashboard')
     } else {
       setError('Nom d\'utilisateur ou mot de passe incorrect')
     }
