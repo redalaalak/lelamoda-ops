@@ -2,8 +2,8 @@ import type { Metadata } from 'next'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'LelaModa OPS',
-  description: 'COD Operations Platform',
+  title: 'Tawsilak Admin',
+  description: 'Panneau de gestion Tawsilak',
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

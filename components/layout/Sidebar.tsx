@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 
 const nav = [
   {
@@ -62,6 +62,12 @@ const nav = [
 
 export default function Sidebar() {
   const pathname = usePathname()
+  const router = useRouter()
+
+  async function handleLogout() {
+    await fetch('/api/auth/logout', { method: 'POST' })
+    router.push('/admin/login')
+  }
 
   const isActive = (href: string) => {
     if (href === '/dashboard') return pathname === '/dashboard'
@@ -74,9 +80,9 @@ export default function Sidebar() {
       <div className="px-5 py-4 border-b border-gray-100">
         <div className="flex items-center gap-2">
           <div className="w-7 h-7 bg-emerald-500 rounded-lg flex items-center justify-center">
-            <span className="text-white font-bold text-xs">L</span>
+            <span className="text-white font-bold text-xs">T</span>
           </div>
-          <span className="font-bold text-gray-900 text-sm tracking-wide">LelaModa</span>
+          <span className="font-bold text-gray-900 text-sm tracking-wide">Tawsilak</span>
         </div>
       </div>
 
@@ -123,7 +129,7 @@ export default function Sidebar() {
       </nav>
 
       {/* Bottom */}
-      <div className="px-3 py-3 border-t border-gray-100">
+      <div className="px-3 py-3 border-t border-gray-100 space-y-0.5">
         <Link
           href="/settings"
           className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-500 hover:bg-gray-50 hover:text-gray-900 transition-colors"
@@ -134,6 +140,15 @@ export default function Sidebar() {
           </svg>
           Settings
         </Link>
+        <button
+          onClick={handleLogout}
+          className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-red-500 hover:bg-red-50 hover:text-red-700 transition-colors"
+        >
+          <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+          </svg>
+          Déconnexion
+        </button>
       </div>
     </aside>
   )
