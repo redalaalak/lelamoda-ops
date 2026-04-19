@@ -4,12 +4,28 @@ import Link from 'next/link'
 import { useState } from 'react'
 
 export default function ContactPage() {
-  const [sent, setSent] = useState(false)
+  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
   const [form, setForm] = useState({ name: '', email: '', message: '' })
+  const [errorMsg, setErrorMsg] = useState('')
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    setSent(true)
+    setStatus('loading')
+    setErrorMsg('')
+
+    const res = await fetch('/api/contact', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(form),
+    })
+
+    if (res.ok) {
+      setStatus('success')
+    } else {
+      const data = await res.json()
+      setErrorMsg(data.error || 'Une erreur est survenue')
+      setStatus('error')
+    }
   }
 
   return (
@@ -22,6 +38,7 @@ export default function ContactPage() {
           <span className="font-bold text-gray-900">Tawsilak</span>
         </Link>
       </nav>
+
       <div className="max-w-2xl mx-auto px-6 py-16">
         <h1 className="text-4xl font-extrabold text-gray-900 mb-2">Contactez-nous</h1>
         <p className="text-gray-500 mb-10">Une question ? Une demande de démo ? Notre équipe vous répond dans les 24h.</p>
@@ -40,7 +57,7 @@ export default function ContactPage() {
           ))}
         </div>
 
-        {sent ? (
+        {status === 'success' ? (
           <div className="bg-emerald-50 border border-emerald-100 rounded-2xl p-8 text-center">
             <div className="text-4xl mb-3">✅</div>
             <h3 className="text-lg font-bold text-gray-900 mb-1">Message envoyé !</h3>
@@ -84,11 +101,19 @@ export default function ContactPage() {
                 className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 transition resize-none"
               />
             </div>
+
+            {status === 'error' && (
+              <div className="bg-red-50 border border-red-100 rounded-lg px-4 py-3 text-red-600 text-sm">
+                {errorMsg}
+              </div>
+            )}
+
             <button
               type="submit"
-              className="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-semibold py-3 rounded-xl text-sm transition-colors"
+              disabled={status === 'loading'}
+              className="w-full bg-emerald-500 hover:bg-emerald-600 disabled:opacity-60 text-white font-semibold py-3 rounded-xl text-sm transition-colors"
             >
-              Envoyer le message
+              {status === 'loading' ? 'Envoi en cours...' : 'Envoyer le message'}
             </button>
           </form>
         )}

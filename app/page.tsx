@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import WaitlistForm from '@/components/WaitlistForm'
 
 export default function LandingPage() {
   return (
@@ -259,16 +260,7 @@ export default function LandingPage() {
         <div className="max-w-2xl mx-auto text-center">
           <h2 className="text-4xl font-extrabold text-white mb-4">Prêt à booster vos livraisons ?</h2>
           <p className="text-lg text-gray-400 mb-10">Rejoignez les marchands marocains qui utilisent Tawsilak pour gérer leur activité COD.</p>
-          <form className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
-            <input
-              type="email"
-              placeholder="Votre email professionnel"
-              className="flex-1 bg-white/10 border border-white/20 text-white placeholder-gray-400 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-400"
-            />
-            <button type="submit" className="bg-emerald-500 hover:bg-emerald-400 text-white font-semibold px-6 py-3 rounded-xl text-sm transition-colors whitespace-nowrap">
-              Rejoindre la liste
-            </button>
-          </form>
+          <WaitlistForm />
           <p className="text-xs text-gray-500 mt-4">+500 marchands nous font déjà confiance</p>
         </div>
       </section>
