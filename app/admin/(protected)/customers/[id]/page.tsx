@@ -155,7 +155,7 @@ export default async function CustomerProfilePage({
                   return (
                     <Link
                       key={o.id}
-                      href={`/orders/${o.id}`}
+                      href={`/admin/orders/${o.id}`}
                       className="flex items-center gap-4 px-5 py-3.5 hover:bg-gray-50 transition"
                     >
                       {/* thumbnail */}
