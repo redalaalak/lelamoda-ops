@@ -454,7 +454,7 @@ export default function OrdersTable({ initialOrders }: { initialOrders: Order[] 
                       ? 'bg-emerald-50'
                       : 'hover:bg-gray-50'
                   }`}
-                  onClick={() => { window.location.href = `/orders/${order.id}` }}
+                  onClick={() => { window.location.href = `/admin/orders/${order.id}` }}
                 >
                   {/* Row checkbox — stops propagation so click doesn't navigate */}
                   <td className="pl-4 pr-2 py-3 w-10" onClick={e => toggleOne(order.id, e)}>

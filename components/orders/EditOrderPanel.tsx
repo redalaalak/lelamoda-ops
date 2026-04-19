@@ -459,7 +459,7 @@ export default function EditOrderPanel({
                   className="w-full text-sm font-semibold text-gray-900 border border-gray-200 rounded-lg px-2 py-1 focus:outline-none focus:ring-1 focus:ring-emerald-400 mb-0.5"
                 />
               ) : item.shopify_product_id ? (
-                <Link href={`/products/${item.shopify_product_id}`} className="font-semibold text-sm text-emerald-600 hover:underline truncate block">
+                <Link href={`/admin/products/${item.shopify_product_id}`} className="font-semibold text-sm text-emerald-600 hover:underline truncate block">
                   {item.title}
                 </Link>
               ) : (

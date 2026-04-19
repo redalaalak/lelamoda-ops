@@ -64,7 +64,7 @@ export default async function OrderDetailsPage({ params }: { params: { id: strin
       {/* Header */}
       <div className="flex items-center justify-between mb-1">
         <div className="flex items-center gap-3">
-          <Link href="/orders" className="text-gray-400 hover:text-gray-600">
+          <Link href="/admin/orders" className="text-gray-400 hover:text-gray-600">
             <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
             </svg>
@@ -211,7 +211,7 @@ export default async function OrderDetailsPage({ params }: { params: { id: strin
                 {otherOrders.map((o: any) => (
                   <Link
                     key={o.id}
-                    href={`/orders/${o.id}`}
+                    href={`/admin/orders/${o.id}`}
                     className="flex items-center gap-3 hover:bg-gray-50 rounded-lg p-1 -mx-1 transition"
                   >
                     {o.order_items?.[0]?.image_url ? (

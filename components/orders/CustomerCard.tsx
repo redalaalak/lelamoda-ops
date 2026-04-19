@@ -572,7 +572,7 @@ export default function CustomerCard({
           <div className="flex-1 min-w-0">
             {customer ? (
               <Link
-                href={`/customers/${customer.id}`}
+                href={`/admin/customers/${customer.id}`}
                 className="text-sm font-semibold text-emerald-600 hover:underline block truncate"
               >
                 {displayName}
@@ -689,7 +689,7 @@ export default function CustomerCard({
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Customer Lifetime</span>
             {customer && (
-              <Link href={`/customers/${customer.id}`} className="text-xs text-emerald-600 hover:underline font-medium">
+              <Link href={`/admin/customers/${customer.id}`} className="text-xs text-emerald-600 hover:underline font-medium">
                 View profile
               </Link>
             )}

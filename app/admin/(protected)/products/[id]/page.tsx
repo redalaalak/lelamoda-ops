@@ -27,7 +27,7 @@ export default async function ProductDetailPage({ params }: { params: { id: stri
     <div className="p-6">
       {/* Header */}
       <div className="flex items-center gap-3 mb-6">
-        <Link href="/products" className="flex items-center gap-1 text-gray-400 hover:text-gray-600 text-sm">
+        <Link href="/admin/products" className="flex items-center gap-1 text-gray-400 hover:text-gray-600 text-sm">
           <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
           </svg>
