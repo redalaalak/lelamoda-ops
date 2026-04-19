@@ -6,12 +6,12 @@ export default function LandingPage() {
       {/* Navbar */}
       <nav className="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur border-b border-gray-100">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2">
+          <Link href="/" className="flex items-center gap-2">
             <div className="w-8 h-8 bg-emerald-500 rounded-lg flex items-center justify-center">
               <span className="text-white font-bold text-sm">T</span>
             </div>
             <span className="font-bold text-gray-900 text-lg">Tawsilak</span>
-          </div>
+          </Link>
           <div className="hidden md:flex items-center gap-8 text-sm text-gray-600">
             <a href="#features" className="hover:text-gray-900 transition-colors">Fonctionnalités</a>
             <a href="#how" className="hover:text-gray-900 transition-colors">Comment ça marche</a>
@@ -276,17 +276,17 @@ export default function LandingPage() {
       {/* Footer */}
       <footer className="py-10 px-6 border-t border-gray-100">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-2">
+          <Link href="/" className="flex items-center gap-2">
             <div className="w-6 h-6 bg-emerald-500 rounded-md flex items-center justify-center">
               <span className="text-white font-bold text-xs">T</span>
             </div>
             <span className="font-bold text-gray-900">Tawsilak</span>
             <span className="text-gray-400 text-sm ml-2">© 2025</span>
-          </div>
+          </Link>
           <div className="flex items-center gap-6 text-sm text-gray-500">
-            <a href="#" className="hover:text-gray-900 transition-colors">Confidentialité</a>
-            <a href="#" className="hover:text-gray-900 transition-colors">Conditions</a>
-            <a href="#" className="hover:text-gray-900 transition-colors">Contact</a>
+            <Link href="/confidentialite" className="hover:text-gray-900 transition-colors">Confidentialité</Link>
+            <Link href="/conditions" className="hover:text-gray-900 transition-colors">Conditions</Link>
+            <Link href="/contact" className="hover:text-gray-900 transition-colors">Contact</Link>
             <Link href="/admin/login" className="hover:text-gray-900 transition-colors">Admin</Link>
           </div>
         </div>
