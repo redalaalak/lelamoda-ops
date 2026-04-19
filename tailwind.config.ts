@@ -7,18 +7,24 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ['Inter', 'system-ui', 'sans-serif'],
+      },
       colors: {
-        brand: {
-          50: '#f0fdf4',
-          100: '#dcfce7',
-          500: '#22c55e',
-          600: '#16a34a',
-          700: '#15803d',
+        navy: {
+          900: '#0b0f1a',
+          800: '#111827',
+          700: '#1a2235',
+          600: '#1e2d3d',
+          500: '#243447',
         },
-        teal: {
+        brand: {
+          50:  '#f0fdfa',
+          100: '#ccfbf1',
+          400: '#2dd4bf',
+          500: '#14b8a6',
           600: '#0d9488',
           700: '#0f766e',
-          800: '#115e59',
         },
       },
     },
