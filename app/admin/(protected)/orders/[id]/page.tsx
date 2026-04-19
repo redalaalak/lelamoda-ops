@@ -9,6 +9,7 @@ import EditOrderPanel from '@/components/orders/EditOrderPanel'
 import CustomerCard from '@/components/orders/CustomerCard'
 import { OrderStatusProvider } from '@/components/orders/OrderStatusContext'
 import { STATUS_COLOR, STATUS_LABEL } from '@/lib/orders/constants'
+import WhatsAppButton from '@/components/orders/WhatsAppButton'
 
 export const dynamic = 'force-dynamic'
 
@@ -84,6 +85,12 @@ export default async function OrderDetailsPage({ params }: { params: { id: strin
             </svg>
             Print
           </button>
+          <WhatsAppButton
+            orderId={order.id}
+            phone={order.customer_phone ?? order.shipping_phone ?? null}
+            orderName={order.shopify_order_name || ''}
+            customerName={order.customer_full_name || ''}
+          />
           <OrderActions orderId={order.id} />
         </div>
       </div>

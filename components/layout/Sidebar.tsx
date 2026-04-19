@@ -164,6 +164,20 @@ export default function Sidebar() {
           </svg>
           Settings
         </Link>
+        <Link
+          href="/admin/settings/whatsapp"
+          className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition-all ${
+            pathname === '/admin/settings/whatsapp'
+              ? 'bg-emerald-50 text-emerald-700 font-semibold'
+              : 'text-gray-500 hover:text-gray-800 hover:bg-gray-50'
+          }`}
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8}
+            className={pathname === '/admin/settings/whatsapp' ? 'text-emerald-600' : 'text-gray-400'}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+          </svg>
+          WhatsApp
+        </Link>
         <button
           onClick={handleLogout}
           className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-400 hover:text-red-500 hover:bg-red-50 transition-all"
