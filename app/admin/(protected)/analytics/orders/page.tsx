@@ -1,5 +1,6 @@
 import { supabaseAdmin } from '@/lib/supabase/admin'
 import Link from 'next/link'
+import DateRangePicker from '@/components/analytics/DateRangePicker'
 
 export const dynamic = 'force-dynamic'
 
@@ -53,9 +54,16 @@ const STATUS_LABEL: Record<string, string> = {
   canceled_confirmation: 'canceled', to_edit: 'to edit', out_of_stock: 'out of stock',
 }
 
-export default async function AnalyticsOrdersPage() {
+export default async function AnalyticsOrdersPage({ searchParams }: { searchParams: { from?: string; to?: string } }) {
+  const fromDate = searchParams.from
+  const toDate = searchParams.to
+
+  let ordersQuery = supabaseAdmin.from('orders').select('id, shopify_order_name, shopify_order_number, total_price, business_status, payment_status, created_at, shipping_city, utm_source, customer_full_name, customer_id')
+  if (fromDate) ordersQuery = ordersQuery.gte('created_at', fromDate + 'T00:00:00')
+  if (toDate) ordersQuery = ordersQuery.lte('created_at', toDate + 'T23:59:59')
+
   const [ordersRes, customersRes] = await Promise.all([
-    supabaseAdmin.from('orders').select('id, shopify_order_name, shopify_order_number, total_price, business_status, payment_status, created_at, shipping_city, utm_source, customer_full_name, customer_id'),
+    ordersQuery,
     supabaseAdmin.from('customers').select('id, full_name, phone, is_blocked'),
   ])
 
@@ -165,7 +173,7 @@ export default async function AnalyticsOrdersPage() {
           </Link>
           <h1 className="text-xl font-bold text-gray-900">Analytics: Orders</h1>
         </div>
-        <span className="text-xs text-gray-400 bg-white border border-gray-100 rounded-lg px-3 py-1.5">All time</span>
+        <DateRangePicker />
       </div>
 
       {/* KPIs */}

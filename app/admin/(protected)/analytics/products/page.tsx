@@ -1,16 +1,25 @@
 import { supabaseAdmin } from '@/lib/supabase/admin'
 import Link from 'next/link'
+import DateRangePicker from '@/components/analytics/DateRangePicker'
 
 export const dynamic = 'force-dynamic'
 
-export default async function AnalyticsProductsPage() {
+export default async function AnalyticsProductsPage({ searchParams }: { searchParams: { from?: string; to?: string } }) {
+  const fromDate = searchParams.from
+  const toDate = searchParams.to
+
+  let ordersQuery = supabaseAdmin.from('orders').select('id, total_price, business_status, created_at, shipping_city')
+  if (fromDate) ordersQuery = ordersQuery.gte('created_at', fromDate + 'T00:00:00')
+  if (toDate) ordersQuery = ordersQuery.lte('created_at', toDate + 'T23:59:59')
+
   const [ordersRes, itemsRes] = await Promise.all([
-    supabaseAdmin.from('orders').select('id, total_price, business_status, created_at, shipping_city'),
+    ordersQuery,
     supabaseAdmin.from('order_items').select('order_id, title, quantity, unit_price, image_url'),
   ])
 
   const orders = ordersRes.data || []
-  const items = itemsRes.data || []
+  const orderIds = new Set(orders.map(o => o.id))
+  const items = (itemsRes.data || []).filter(i => orderIds.has(i.order_id))
 
   const total = orders.length
   const revenue = orders.reduce((s, o) => s + Number(o.total_price || 0), 0)
@@ -91,7 +100,7 @@ export default async function AnalyticsProductsPage() {
           </Link>
           <h1 className="text-xl font-bold text-gray-900">Analytics: Products</h1>
         </div>
-        <span className="text-xs text-gray-400 bg-white border border-gray-100 rounded-lg px-3 py-1.5">All time</span>
+        <DateRangePicker />
       </div>
 
       {/* KPIs */}

@@ -1,5 +1,6 @@
 import { supabaseAdmin } from '@/lib/supabase/admin'
 import Link from 'next/link'
+import DateRangePicker from '@/components/analytics/DateRangePicker'
 
 export const dynamic = 'force-dynamic'
 
@@ -37,10 +38,15 @@ const STATUS_LABEL: Record<string, string> = {
   canceled_confirmation: 'canceled', to_edit: 'to edit',
 }
 
-export default async function AnalyticsUTMPage() {
-  const { data: orders } = await supabaseAdmin
-    .from('orders')
-    .select('id, total_price, business_status, created_at, utm_source, utm_medium, utm_campaign')
+export default async function AnalyticsUTMPage({ searchParams }: { searchParams: { from?: string; to?: string } }) {
+  const fromDate = searchParams.from
+  const toDate = searchParams.to
+
+  let ordersQuery = supabaseAdmin.from('orders').select('id, total_price, business_status, created_at, utm_source, utm_medium, utm_campaign')
+  if (fromDate) ordersQuery = ordersQuery.gte('created_at', fromDate + 'T00:00:00')
+  if (toDate) ordersQuery = ordersQuery.lte('created_at', toDate + 'T23:59:59')
+
+  const { data: orders } = await ordersQuery
 
   const all = orders || []
   const utmOrders = all.filter(o => o.utm_source || o.utm_medium || o.utm_campaign)
@@ -154,7 +160,7 @@ export default async function AnalyticsUTMPage() {
           </Link>
           <h1 className="text-xl font-bold text-gray-900">Analytics: UTM</h1>
         </div>
-        <span className="text-xs text-gray-400 bg-white border border-gray-100 rounded-lg px-3 py-1.5">All time</span>
+        <DateRangePicker />
       </div>
 
       {/* KPIs */}
