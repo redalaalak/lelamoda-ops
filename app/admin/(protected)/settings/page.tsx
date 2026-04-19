@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
 
 export default function SettingsPage() {
   const [saved, setSaved] = useState(false)
@@ -39,6 +40,48 @@ export default function SettingsPage() {
       <div className="mb-8">
         <h1 className="text-lg font-semibold text-gray-900">Paramètres</h1>
         <p className="text-sm text-gray-400 mt-0.5">Configuration de votre compte admin</p>
+      </div>
+
+      {/* Integrations */}
+      <div className="bg-white rounded-xl border border-gray-100 overflow-hidden mb-6">
+        <div className="px-6 py-4 border-b border-gray-50">
+          <h2 className="text-sm font-semibold text-gray-800">Intégrations</h2>
+          <p className="text-xs text-gray-400 mt-0.5">Connectez vos services externes</p>
+        </div>
+        <div className="divide-y divide-gray-50">
+          <Link href="/admin/settings/whatsapp" className="flex items-center justify-between px-6 py-4 hover:bg-gray-50 transition">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="text-green-600">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                </svg>
+              </div>
+              <div>
+                <div className="text-sm font-medium text-gray-900">WhatsApp Business</div>
+                <div className="text-xs text-gray-400">Envoi de messages automatiques</div>
+              </div>
+            </div>
+            <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} className="text-gray-300">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+            </svg>
+          </Link>
+          <Link href="/admin/settings/ameex" className="flex items-center justify-between px-6 py-4 hover:bg-gray-50 transition">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="text-orange-600">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                </svg>
+              </div>
+              <div>
+                <div className="text-sm font-medium text-gray-900">Ameex — Mapping des statuts</div>
+                <div className="text-xs text-gray-400">Synchronisation des statuts de livraison</div>
+              </div>
+            </div>
+            <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} className="text-gray-300">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+            </svg>
+          </Link>
+        </div>
       </div>
 
       {/* Store info */}

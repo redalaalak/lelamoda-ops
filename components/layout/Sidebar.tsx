@@ -174,6 +174,20 @@ export default function Sidebar() {
           Settings
         </Link>
         <Link
+          href="/admin/settings/ameex"
+          className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition-all ${
+            pathname.startsWith('/admin/settings/ameex')
+              ? 'bg-emerald-50 text-emerald-700 font-semibold'
+              : 'text-gray-500 hover:text-gray-800 hover:bg-gray-50'
+          }`}
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8}
+            className={pathname.startsWith('/admin/settings/ameex') ? 'text-emerald-600' : 'text-gray-400'}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+          </svg>
+          Ameex
+        </Link>
+        <Link
           href="/admin/settings/whatsapp"
           className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition-all ${
             pathname === '/admin/settings/whatsapp'
