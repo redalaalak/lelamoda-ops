@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useRef, useCallback, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 
 // ---------------------------------------------------------------------------
@@ -252,6 +253,7 @@ export default function EditOrderPanel({
   initialShipping: number
   initialDiscount: number
 }) {
+  const router = useRouter()
   const [isEditing, setIsEditing] = useState(false)
   const [items, setItems] = useState<DraftItem[]>(initialItems)
   const [removedIds, setRemovedIds] = useState<string[]>([])
@@ -262,6 +264,15 @@ export default function EditOrderPanel({
 
   const [showSearch, setShowSearch] = useState(false)
   const [showCustomForm, setShowCustomForm] = useState(false)
+
+  // Sync items/shipping/discount when server refreshes props after save
+  useEffect(() => {
+    if (!isEditing) {
+      setItems(initialItems)
+      setShipping(initialShipping)
+      setDiscount(initialDiscount)
+    }
+  }, [initialItems, initialShipping, initialDiscount, isEditing])
 
   // Computed totals — always live
   const subtotal = items.reduce((s, i) => s + i.quantity * i.unit_price, 0)
@@ -362,16 +373,17 @@ export default function EditOrderPanel({
         throw new Error(data.error || `Server error ${res.status}`)
       }
 
-      // Hard reload — server re-renders with authoritative DB data.
-      // This guarantees the UI matches the database with no race conditions.
-      window.location.reload()
+      router.refresh()
+      setIsEditing(false)
+      setRemovedIds([])
+      setShowSearch(false)
+      setShowCustomForm(false)
+      setSaving(false)
 
     } catch (e: any) {
       setSaveError(e.message)
       setSaving(false)
     }
-    // Note: setSaving(false) intentionally omitted on success path —
-    // the page reloads before it matters.
   }
 
   // ─────────────────────────────────────────────────────────────────────────
