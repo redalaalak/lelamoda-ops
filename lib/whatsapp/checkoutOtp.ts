@@ -78,7 +78,7 @@ export async function sendCheckoutOtp({
   const parameter = { type: 'text', text: code }
   const response = await fetch('https://api5.egrow.com/graphql', {
     method: 'POST',
-    headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
+    headers: { 'X-API-Key': accessToken, 'Content-Type': 'application/json' },
     signal: AbortSignal.timeout(10_000),
     body: JSON.stringify({
       query: SEND_TEMPLATE,
