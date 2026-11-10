@@ -27,7 +27,7 @@ export async function POST(request: Request) {
 
   const accessKey = process.env.CHECKOUT_OTP_TEST_ACCESS_KEY ?? ''
   const secret = process.env.CHECKOUT_OTP_HMAC_SECRET ?? ''
-  const accessToken = process.env.EGROW_CHECKOUT_ACCESS_TOKEN
+  const accessToken = process.env.EGROW_API_KEY
   const integrationId = Number(process.env.EGROW_CHECKOUT_INTEGRATION_ID)
   const connectionId = Number(process.env.EGROW_CHECKOUT_CONNECTION_ID)
   const templateId = process.env.EGROW_CHECKOUT_TEMPLATE_ID
